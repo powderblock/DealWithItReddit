@@ -3,11 +3,12 @@ import urllib
 import cv2, numpy as np
 from PIL import Image
 
+eyeData = "xml/eyes.xml"
+glasses = cv2.imread('assets/glasses.png', cv2.IMREAD_UNCHANGED)
 DOWNSCALE = 2
+foundImage = False
 
 r = praw.Reddit('/u/powderblock Glasses Bot')
-
-foundImage = False
 
 for post in r.get_subreddit('all').get_new(limit=15):
         if "imgur.com" in post.url and (".jpg" in post.url or ".png" in post.url):
