@@ -4,16 +4,22 @@ import cv2, numpy as np
 from PIL import Image
 import time
 import getpass
+import re
 
+# Eye Classifier
 eyeData = "xml/eyes.xml"
 eyeClass = cv2.CascadeClassifier(eyeData)
+# Glasses Asset
 glasses = cv2.imread('assets/glasses.png', cv2.IMREAD_UNCHANGED)
 ratio = glasses.shape[1] / glasses.shape[0]
+# How much we are going to downscale image while processing it.
 DOWNSCALE = 4
 foundImage = False
 
+# List of posts already processed.
 already_done = []
 
+# Super secret Reddit password.
 password = getpass.getpass("Reddit password: ")
 
 def process_image(url, frame, eyes):
