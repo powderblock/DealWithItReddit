@@ -2,9 +2,9 @@ PyDankReddit
 ============
 ![weed-border](http://25.media.tumblr.com/tumblr_m9wyxuECn41r67vczo1_500.gif)
 
-Processin' those dank reddits into may mays, in Python PRAW OpenCV, PyImgur, and URLlib.
+Processin' those dank reddits into may mays, in Python with PRAW, URLlib, and OpenCV,
 
-Should add some sw33t sunglasses onto your reddits r8t now.
+Should add some sw33t sunglasses onto your reddits rite now m8.
 
 Credits
 -------
