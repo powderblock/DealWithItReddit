@@ -1,6 +1,7 @@
 import praw
 import urllib
-import cv2, numpy as np
+import cv2
+import numpy as np
 from PIL import Image
 import time
 import getpass
@@ -21,6 +22,7 @@ already_done = []
 
 # Super secret Reddit password.
 password = getpass.getpass("Reddit password: ")
+
 
 def process_image(url, frame, eyeList):
     for eye in eyeList:
