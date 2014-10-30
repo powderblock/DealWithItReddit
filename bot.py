@@ -22,8 +22,8 @@ already_done = []
 # Super secret Reddit password.
 password = getpass.getpass("Reddit password: ")
 
-def process_image(url, frame, eyes):
-    for eye in eyes:
+def process_image(url, frame, eyeList):
+    for eye in eyeList:
         x, y, w, h = [v * DOWNSCALE for v in eye]
         h = w / ratio
         y += h / 2
