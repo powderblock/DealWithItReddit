@@ -18,6 +18,7 @@ ratio = glasses.shape[1] / glasses.shape[0]
 # How much we are going to downscale image while processing it.
 DOWNSCALE = 4
 foundImage = False
+eyesInImage = False
 
 # List of posts already processed.
 already_done = []
@@ -51,15 +52,17 @@ def process_image(url, frame, eyes):
         # put the changed image back into the scene
         frame[y:y+h, x:x+w] = bg
         print("Found image. Writing image.")
-        cv2.imwrite(url.replace("/", "").replace(":", ""), frame)
+        cv2.imwrite(url.replace("http://i.imgur.com/", ""), frame)
 
 while True:
+    eyesInImage = False
     foundImage = False
     r = praw.Reddit('/u/powderblock Glasses Bot')
     r.login('DealWithItbot', password)
     for post in r.get_subreddit('all').get_new(limit=20):
         if post not in already_done:
             if "imgur.com" in post.url and (".jpg" in post.url or ".png" in post.url):
+                foundImage = True
                 already_done.append(post)
                 print(post.url)
                 response = urllib.urlopen(post.url)
@@ -88,11 +91,13 @@ while True:
                 for eye in eyes:
                     for face in faces:
                         if collide(eye, face):
-                            foundImage = True
-                            cv2.imwrite(str(post.url).replace("/", "").replace(":", "").replace("http", ""), frame)
+                            eyesinImage = True
+                            cv2.imwrite(str(post.url).replace("http://", ""), frame)
                             process_image(str(post.url), frame, eyes)
                             x, y, w, h = [v*DOWNSCALE for v in eye]
                     
-    if not foundImage:
-        print("No image with eyes found.")
+    if not foundImage and not eyesInImage:
+        print("No valid image(s) were found.")
+    if foundImage and not eyesInImage:
+        print("No eyes detected in image(s)")
     time.sleep(30)
