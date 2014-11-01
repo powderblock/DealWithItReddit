@@ -6,6 +6,7 @@ from PIL import Image
 import time
 import re
 import pyimgur
+import os
 
 # Eye Classifier
 eyeData = "xml/eyes.xml"
@@ -73,6 +74,7 @@ def process_image(url, frame, eyes):
         im = pyimgur.Imgur(client_id)
         global uploaded_image
         uploaded_image = im.upload_image(savedImage, title=savedImage)
+        os.remove(savedImage)
         print(uploaded_image.link)
 
 
@@ -91,7 +93,6 @@ while True:
             already_done.append(post)
             if is_imgur_url(post.url):
                 foundImage = True
-                print(post.url)
                 response = urllib.urlopen(post.url)
                 # load the image we want to detect features on
                 # Convert rawImage to Mat
@@ -120,19 +121,18 @@ while True:
                     for face in faces:
                         if collide(eye, face):
                             eyesinImage = True
-
-                            cv2.imwrite(filename, frame)
+                            print(("Found eyes in the image: ") +str(post.url))
+                            print("Processing image.")
                             process_image(str(post.url), frame, eyes)
-                            submission = r.get_submission(
-                                submission_id=post.id
-                            )
+                            submission = r.get_submission(submission_id=post.id)
                             message = '[DEAL WITH IT]('+uploaded_image.link+')'
                             try:
+                                print(("Comment has been left. Here's what it says: ")+message)
                                 submission.add_comment(message)
                             except:
-                                time.sleep(660)
-                                r.login(username, password)
-                                submission.add_comment(message)
+                                print("**Error occured. Sleeping.**")
+                                time.sleep(600)
+
 
     if not foundImage and not eyesInImage:
         print("No valid image(s) were found.")
