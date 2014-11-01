@@ -23,10 +23,12 @@ eyesInImage = False
 # List of posts already processed.
 already_done = []
 
-reddit = open("redditInfo", "r").read()
-imgur = open("imgurInfo", "r").read()
-redditItems = [item.group(0).strip() for item in re.finditer("(?<=:).+", reddit)]
-imgurItems = [item.group(0).strip() for item in re.finditer("(?<=:).+", imgur)]
+line_regex = re.compile(r"(?<:).+")
+reddit = line_regex.finditer(open("redditInfo", "r").read())
+imgur = line_regex.finditer(open("imgurInfo", "r").read())
+
+redditItems = [item.group(0).strip() for item in reddit]
+imgurItems = [item.group(0).strip() for item in imgur]
 
 print imgurItems
 print redditItems
@@ -35,6 +37,7 @@ print redditItems
 client_id = imgurItems[0]
 username = redditItems[0]
 password = redditItems[1]
+
 
 def collide(eye, face):
     leftA = eye[0]
@@ -45,8 +48,11 @@ def collide(eye, face):
     rightB = leftB + face[2]
     topB = face[2] - face[3]
     bottomB = face[3]
-    if(rightA > leftB and leftA < rightB and bottomA > topB and topA < bottomB): return True
-    else: return False
+    if rightA > leftB and leftA < rightB and bottomA > topB and topA < bottomB:
+        return True
+    else:
+        return False
+
 
 def process_image(url, frame, eyes):
     for eye in eyes:
@@ -69,16 +75,21 @@ def process_image(url, frame, eyes):
         uploaded_image = im.upload_image(savedImage, title=savedImage)
         print(uploaded_image.link)
 
+
+def is_imgur_url(url):
+    return "imgur.com" in url and (".jpg" in url or ".png" in url)
+
 while True:
     eyesInImage = False
     foundImage = False
     r = praw.Reddit('/u/powderblock Glasses Bot')
-    #Auth Imgur
+    # Auth Imgur
     r.login(username, password)
     for post in r.get_subreddit('all').get_new(limit=20):
         if post not in already_done:
+            filename = str(post.url).replace(":", "").replace("/", "")
             already_done.append(post)
-            if "imgur.com" in post.url and (".jpg" in post.url or ".png" in post.url):
+            if is_imgur_url(post.url):
                 foundImage = True
                 print(post.url)
                 response = urllib.urlopen(post.url)
@@ -86,21 +97,22 @@ while True:
                 # Convert rawImage to Mat
                 filear = np.asarray(bytearray(response.read()), dtype=np.uint8)
                 frame = cv2.imdecode(filear, cv2.CV_LOAD_IMAGE_UNCHANGED)
-                
+
                 if frame is None or frame.size is None:
                     print("Error, couldn't load image, skipping.")
                     # Skip to next image
                     continue
-                
+
                 if frame.shape[0] > 5000 or frame.shape[1] > 5000:
                     print("Image is too large, skipping.")
                     continue
-                
+
                 if frame.shape[0] == 0 or frame.shape[1] == 0:
                     print("Image has a width or height of 0, skipping.")
                     continue
-                                    
-                minisize = (frame.shape[1]/DOWNSCALE,frame.shape[0]/DOWNSCALE)
+
+                minisize = (frame.shape[1]/DOWNSCALE,
+                            frame.shape[0]/DOWNSCALE)
                 miniframe = cv2.resize(frame, minisize)
                 eyes = eyeClass.detectMultiScale(miniframe)
                 faces = faceClass.detectMultiScale(miniframe)
@@ -108,16 +120,20 @@ while True:
                     for face in faces:
                         if collide(eye, face):
                             eyesinImage = True
-                            cv2.imwrite(str(post.url).replace(":", "").replace("/", ""), frame)
+
+                            cv2.imwrite(filename, frame)
                             process_image(str(post.url), frame, eyes)
-                            submission = r.get_submission(submission_id=post.id)
+                            submission = r.get_submission(
+                                submission_id=post.id
+                            )
+                            message = '[DEAL WITH IT]('+uploaded_image.link+')'
                             try:
-                                submission.add_comment(('[DEAL WITH IT](')+uploaded_image.link+(')'))
+                                submission.add_comment(message)
                             except:
                                 time.sleep(660)
                                 r.login(username, password)
-                                submission.add_comment(('[DEAL WITH IT](')+uploaded_image.link+(')'))
-                    
+                                submission.add_comment(message)
+
     if not foundImage and not eyesInImage:
         print("No valid image(s) were found.")
     if foundImage and not eyesInImage:
