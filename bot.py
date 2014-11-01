@@ -77,9 +77,9 @@ while True:
     r.login(username, password)
     for post in r.get_subreddit('all').get_new(limit=20):
         if post not in already_done:
+            already_done.append(post)
             if "imgur.com" in post.url and (".jpg" in post.url or ".png" in post.url):
                 foundImage = True
-                already_done.append(post)
                 print(post.url)
                 response = urllib.urlopen(post.url)
                 # load the image we want to detect features on
@@ -114,7 +114,7 @@ while True:
                             try:
                                 submission.add_comment(('[DEAL WITH IT](')+uploaded_image.link+(')'))
                             except:
-                                time.sleep(540)
+                                time.sleep(660)
                                 r.login(username, password)
                                 submission.add_comment(('[DEAL WITH IT](')+uploaded_image.link+(')'))
                     
