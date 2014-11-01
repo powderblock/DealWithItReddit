@@ -24,15 +24,12 @@ eyesInImage = False
 # List of posts already processed.
 already_done = []
 
-line_regex = re.compile(r"(?<:).+")
+line_regex = re.compile(r"(?<=:).+")
 reddit = line_regex.finditer(open("redditInfo", "r").read())
 imgur = line_regex.finditer(open("imgurInfo", "r").read())
 
 redditItems = [item.group(0).strip() for item in reddit]
 imgurItems = [item.group(0).strip() for item in imgur]
-
-print imgurItems
-print redditItems
 
 # Super secret user information:
 client_id = imgurItems[0]
@@ -49,13 +46,15 @@ def collide(eye, face):
     rightB = leftB + face[2]
     topB = face[2] - face[3]
     bottomB = face[3]
+    # If a collision is found
     if rightA > leftB and leftA < rightB and bottomA > topB and topA < bottomB:
         return True
+    # Otherwise
     else:
         return False
 
 
-def process_image(url, frame, eyes):
+def process_image(name, frame, eyes):
     for eye in eyes:
         x, y, w, h = [v * DOWNSCALE for v in eye]
         h = w / ratio
@@ -69,7 +68,7 @@ def process_image(url, frame, eyes):
         # put the changed image back into the scene
         frame[y:y+h, x:x+w] = bg
         print("Found image. Writing image.")
-        savedImage = url.replace(":", "").replace("/", "")
+        savedImage = name.replace(":", "").replace("/", "")
         cv2.imwrite(str(savedImage), frame)
         im = pyimgur.Imgur(client_id)
         global uploaded_image
@@ -77,13 +76,15 @@ def process_image(url, frame, eyes):
         os.remove(savedImage)
         print(uploaded_image.link)
 
-
+# Check if a given url fits our needs
 def is_imgur_url(url):
     return "imgur.com" in url and (".jpg" in url or ".png" in url)
 
+# main loop
 while True:
     eyesInImage = False
     foundImage = False
+    # client name
     r = praw.Reddit('/u/powderblock Glasses Bot')
     # Auth Imgur
     r.login(username, password)
