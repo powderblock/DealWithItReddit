@@ -4,8 +4,8 @@ import cv2
 import numpy as np
 from PIL import Image
 import time
-import getpass
 import re
+import pyimgur
 
 # Eye Classifier
 eyeData = "xml/eyes.xml"
@@ -23,8 +23,18 @@ eyesInImage = False
 # List of posts already processed.
 already_done = []
 
-# Super secret Reddit password.
-password = getpass.getpass("Reddit password: ")
+reddit = open("redditInfo", "r").read()
+imgur = open("imgurInfo", "r").read()
+redditItems = [item.group(0).strip() for item in re.finditer("(?<=:).+", reddit)]
+imgurItems = [item.group(0).strip() for item in re.finditer("(?<=:).+", imgur)]
+
+print imgurItems
+print redditItems
+
+# Super secret user information:
+client_id = imgurItems[0]
+username = redditItems[0]
+password = redditItems[1]
 
 def collide(eye, face):
     leftA = eye[0]
@@ -52,13 +62,19 @@ def process_image(url, frame, eyes):
         # put the changed image back into the scene
         frame[y:y+h, x:x+w] = bg
         print("Found image. Writing image.")
-        cv2.imwrite(url.replace("http://i.imgur.com/", ""), frame)
+        savedImage = url.replace("http://i.imgur.com/", "")
+        cv2.imwrite(str(savedImage), frame)
+        im = pyimgur.Imgur(client_id)
+        global uploaded_image
+        uploaded_image = im.upload_image(savedImage, title=savedImage)
+        print(uploaded_image.link)
 
 while True:
     eyesInImage = False
     foundImage = False
     r = praw.Reddit('/u/powderblock Glasses Bot')
-    r.login('DealWithItbot', password)
+    #Auth Imgur
+    r.login(username, password)
     for post in r.get_subreddit('all').get_new(limit=20):
         if post not in already_done:
             if "imgur.com" in post.url and (".jpg" in post.url or ".png" in post.url):
@@ -94,7 +110,13 @@ while True:
                             eyesinImage = True
                             cv2.imwrite(str(post.url).replace("http://", ""), frame)
                             process_image(str(post.url), frame, eyes)
-                            x, y, w, h = [v*DOWNSCALE for v in eye]
+                            submission = r.get_submission(submission_id=post.id)
+                            try:
+                                submission.add_comment(('[DEAL WITH IT](')+uploaded_image.link+(')'))
+                            except:
+                                time.sleep(540)
+                                r.login(username, password)
+                                submission.add_comment(('[DEAL WITH IT](')+uploaded_image.link+(')'))
                     
     if not foundImage and not eyesInImage:
         print("No valid image(s) were found.")
