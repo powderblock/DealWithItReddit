@@ -62,7 +62,7 @@ def process_image(url, frame, eyes):
         # put the changed image back into the scene
         frame[y:y+h, x:x+w] = bg
         print("Found image. Writing image.")
-        savedImage = url.replace("http://i.imgur.com/", "").replace("https://i.imgur.com/", "")
+        savedImage = url.replace(":", "").replace("/", "")
         cv2.imwrite(str(savedImage), frame)
         im = pyimgur.Imgur(client_id)
         global uploaded_image
@@ -108,7 +108,7 @@ while True:
                     for face in faces:
                         if collide(eye, face):
                             eyesinImage = True
-                            cv2.imwrite(str(post.url).replace("http://", "").replace("https://", ""), frame)
+                            cv2.imwrite(str(post.url).replace(":", "").replace("/", ""), frame)
                             process_image(str(post.url), frame, eyes)
                             submission = r.get_submission(submission_id=post.id)
                             try:
