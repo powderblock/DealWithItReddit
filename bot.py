@@ -70,10 +70,11 @@ def process_image(name, frame, eyes):
         print("Found image. Writing image.")
         savedImage = name.replace(":", "").replace("/", "")
         cv2.imwrite(str(savedImage), frame)
+        print(("Saved: ")+ str(savedImage))
         im = pyimgur.Imgur(client_id)
         global uploaded_image
         uploaded_image = im.upload_image(savedImage, title=savedImage)
-        os.remove(savedImage)
+        os.remove(str(savedImage))
         print(uploaded_image.link)
 
 # Check if a given url fits our needs
@@ -92,9 +93,9 @@ while True:
     for post in r.get_subreddit('all').get_new(limit=20):
         if post not in already_done:
             count += 1
-            filename = str(post.url).replace(":", "").replace("/", "")
             already_done.append(post)
             if is_imgur_url(post.url):
+                filename = str(post.url).replace(":", "").replace("/", "")
                 foundImage = True
                 response = urllib.urlopen(post.url)
                 # load the image we want to detect features on
