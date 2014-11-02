@@ -137,11 +137,11 @@ while True:
                     submission = r.get_submission(submission_id=post.id)
                     message = '[DEAL WITH IT]('+uploaded_image.link+')'
                     try:
+                        submission.add_comment(message)
                         print("Comment has been left. Here's what it says: " +
                               message)
-                        submission.add_comment(message)
-                    except:
-                        print("**Error occured. Sleeping.**")
+                    except praw.errors.RateLimitExceeded:
+                        print("**Comment time limit exceeded. Sleeping.**")
                         time.sleep(600)
 
     if not foundImage and not eyesInImage:
