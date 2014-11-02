@@ -38,6 +38,8 @@ Testimonials
 
 "You have been banned from posting to /r/cosplay" - ~~Betty White~~ /r/cosplay
 
+"you have been banned from posting to /r/MakeupAddiction: Makeup Addiction." - ~~Bill Gates~~ /r/MakeupAddiction/
+
 License
 -------
 
