@@ -88,8 +88,10 @@ while True:
     r = praw.Reddit('/u/powderblock Glasses Bot')
     # Auth Imgur
     r.login(username, password)
+    count = 0
     for post in r.get_subreddit('all').get_new(limit=20):
         if post not in already_done:
+            count += 1
             filename = str(post.url).replace(":", "").replace("/", "")
             already_done.append(post)
             if is_imgur_url(post.url):
@@ -118,25 +120,35 @@ while True:
                 miniframe = cv2.resize(frame, minisize)
                 eyes = eyeClass.detectMultiScale(miniframe)
                 faces = faceClass.detectMultiScale(miniframe)
+                eyes_to_use = []
                 for eye in eyes:
                     for face in faces:
                         if collide(eye, face):
+                            eyes_to_use.append(eye)
                             eyesinImage = True
-                            print(("Found eyes in the image: ") +str(post.url))
-                            print("Processing image.")
-                            process_image(str(post.url), frame, eyes)
-                            submission = r.get_submission(submission_id=post.id)
-                            message = '[DEAL WITH IT]('+uploaded_image.link+')'
-                            try:
-                                print(("Comment has been left. Here's what it says: ")+message)
-                                submission.add_comment(message)
-                            except:
-                                print("**Error occured. Sleeping.**")
-                                time.sleep(600)
+                            # Go on to the next eye
+                            break
 
+                if len(eyes_to_use) > 0:
+                    print("Found eyes in the image: " + str(post.url))
+                    print("Processing image.")
+                    process_image(str(post.url), frame, eyes_to_use)
+                    submission = r.get_submission(submission_id=post.id)
+                    message = '[DEAL WITH IT]('+uploaded_image.link+')'
+                    try:
+                        print("Comment has been left. Here's what it says: " +
+                              message)
+                        submission.add_comment(message)
+                    except:
+                        print("**Error occured. Sleeping.**")
+                        time.sleep(600)
 
     if not foundImage and not eyesInImage:
-        print("No valid image(s) were found.")
+        print("No valid image{} were found.".format(
+            "s" if count > 1 else ""
+        ))
     if foundImage and not eyesInImage:
-        print("No eyes detected in image(s)")
+        print("No eyes detected in image{}".format(
+            "s" if count > 1 else ""
+        ))
     time.sleep(30)
