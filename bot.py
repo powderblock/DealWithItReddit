@@ -25,11 +25,20 @@ eyesInImage = False
 already_done = []
 
 line_regex = re.compile(r"(?<=:).+")
+post_regex = re.compile(r"().+")
 reddit = line_regex.finditer(open("redditInfo", "r").read())
+posts = post_regex.finditer(open("posts", "r").read())
 imgur = line_regex.finditer(open("imgurInfo", "r").read())
 
 redditItems = [item.group(0).strip() for item in reddit]
 imgurItems = [item.group(0).strip() for item in imgur]
+postItems = [item.group(0).strip() for item in posts]
+
+# File to load post IDs from
+postsFile = open("posts", "a")
+
+for post in range(0, len(postItems)):
+    already_done.append(str(postItems[post]))
 
 # Super secret user information:
 client_id = imgurItems[0]
@@ -94,6 +103,8 @@ while True:
         if post not in already_done:
             count += 1
             already_done.append(post)
+            postsFile.write(post.id + "\n")
+            postsFile.flush()
             if is_imgur_url(post.url):
                 filename = str(post.url).replace(":", "").replace("/", "")
                 foundImage = True
