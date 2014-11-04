@@ -56,3 +56,7 @@ target/
 # Secret
 imgurInfo
 redditInfo
+twitterInfo
+
+# posts
+posts

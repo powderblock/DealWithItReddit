@@ -48,11 +48,11 @@ client_id = imgurItems[0]
 username = redditItems[0]
 password = redditItems[1]
 
-consumer_key=twitterItems[0]
-consumer_secret=twitterItems[1]
+consumer_key = twitterItems[0]
+consumer_secret = twitterItems[1]
 
-access_token=twitterItems[2]
-access_token_secret=twitterItems[3]
+access_token = twitterItems[2]
+access_token_secret = twitterItems[3]
 
 
 def collide(eye, face):
@@ -88,12 +88,13 @@ def process_image(name, frame, eyes):
         print("Found image. Writing image.")
         savedImage = name.replace(":", "").replace("/", "")
         cv2.imwrite(str(savedImage), frame)
-        print(("Saved: ")+ str(savedImage))
+        print(("Saved: ") + str(savedImage))
         im = pyimgur.Imgur(client_id)
         global uploaded_image
         uploaded_image = im.upload_image(savedImage, title=savedImage)
         os.remove(str(savedImage))
         print(uploaded_image.link)
+
 
 # Check if a given url fits our needs
 def is_imgur_url(url):
@@ -107,7 +108,7 @@ while True:
     r = praw.Reddit('/u/powderblock Glasses Bot')
     # Auth Imgur
     r.login(username, password)
-    #Auth Twitter
+    # Auth Twitter
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.secure = True
     auth.set_access_token(access_token, access_token_secret)
@@ -129,6 +130,7 @@ while True:
                 filear = np.asarray(bytearray(response.read()), dtype=np.uint8)
                 frame = cv2.imdecode(filear, cv2.CV_LOAD_IMAGE_UNCHANGED)
 
+                # Make sure image is valid.
                 if frame is None or frame.size is None:
                     print("Error, couldn't load image, skipping.")
                     # Skip to next image
@@ -161,12 +163,21 @@ while True:
                     print("Processing image.")
                     process_image(str(post.url), frame, eyes_to_use)
                     submission = r.get_submission(submission_id=post.id)
+                    # Make a link with text deal with it, link points to the uploaded image.
                     message = '[DEAL WITH IT]('+uploaded_image.link+')'
                     try:
+                        # Leave the comment
                         comment = submission.add_comment(message)
                         print("Comment has been left. Here's what it says: " +
                               message)
-                        api.update_status(("New Post! ") + comment.permalink)
+                        try:
+                            # Post to twitter
+                            api.update_status(("New Post! ") + comment.permalink)
+                            print("Tweet made!")
+                        except:
+                            print("Tweet was not made. Skipping.")
+
+                    # If you are commenting too much, sleep!
                     except praw.errors.RateLimitExceeded:
                         print("**Comment time limit exceeded. Sleeping.**")
                         time.sleep(600)
