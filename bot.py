@@ -7,6 +7,7 @@ import time
 import re
 import pyimgur
 import os
+import tweepy
 
 # Eye Classifier
 eyeData = "xml/eyes.xml"
@@ -29,9 +30,11 @@ post_regex = re.compile(r"().+")
 reddit = line_regex.finditer(open("redditInfo", "r").read())
 posts = post_regex.finditer(open("posts", "r").read())
 imgur = line_regex.finditer(open("imgurInfo", "r").read())
+twitter = line_regex.finditer(open("twitterInfo", "r").read())
 
 redditItems = [item.group(0).strip() for item in reddit]
 imgurItems = [item.group(0).strip() for item in imgur]
+twitterItems = [item.group(0).strip() for item in twitter]
 postItems = [item.group(0).strip() for item in posts]
 
 # File to load post IDs from
@@ -44,6 +47,12 @@ for post in range(0, len(postItems)):
 client_id = imgurItems[0]
 username = redditItems[0]
 password = redditItems[1]
+
+consumer_key=twitterItems[0]
+consumer_secret=twitterItems[1]
+
+access_token=twitterItems[2]
+access_token_secret=twitterItems[3]
 
 
 def collide(eye, face):
@@ -98,6 +107,12 @@ while True:
     r = praw.Reddit('/u/powderblock Glasses Bot')
     # Auth Imgur
     r.login(username, password)
+    #Auth Twitter
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.secure = True
+    auth.set_access_token(access_token, access_token_secret)
+
+    api = tweepy.API(auth)
     count = 0
     for post in r.get_subreddit('all').get_new(limit=20):
         if post not in already_done:
@@ -148,9 +163,10 @@ while True:
                     submission = r.get_submission(submission_id=post.id)
                     message = '[DEAL WITH IT]('+uploaded_image.link+')'
                     try:
-                        submission.add_comment(message)
+                        comment = submission.add_comment(message)
                         print("Comment has been left. Here's what it says: " +
                               message)
+                        api.update_status(("New Post! ") + comment.permalink)
                     except praw.errors.RateLimitExceeded:
                         print("**Comment time limit exceeded. Sleeping.**")
                         time.sleep(600)
