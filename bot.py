@@ -106,8 +106,9 @@ while True:
     foundImage = False
     # client name
     r = praw.Reddit('/u/powderblock Glasses Bot')
-    # Auth Imgur
+    # Auth Reddit
     r.login(username, password)
+    user = r.get_redditor('DealWithItbot')
     # Auth Twitter
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.secure = True
@@ -190,4 +191,12 @@ while True:
         print("No eyes detected in image{}".format(
             "s" if count > 1 else ""
         ))
+
+    for msg in r.get_unread(limit=None):
+        api.update_status(("'")+ msg.body +("' ") + msg.permalink)
+
+    for i in user.get_comments():
+        if i.score <= int(-1):
+            i.delete()
+
     time.sleep(30)
