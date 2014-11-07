@@ -125,9 +125,9 @@ while True:
             if is_imgur_url(post.url):
                 filename = str(post.url).replace(":", "").replace("/", "")
                 foundImage = True
-				try: response = urllib.urlopen(post.url)
-				except URLError as e:
-					print e.reason
+                try: response = urllib.urlopen(post.url)
+                except URLError as e:
+                        print e.reason
 
                 # load the image we want to detect features on
                 # Convert rawImage to Mat
