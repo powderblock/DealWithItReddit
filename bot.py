@@ -174,7 +174,7 @@ while True:
                               message)
                         try:
                             # Post to twitter
-                            api.update_status(("New Post! ") + comment.permalink)
+                            api.update_status(("New Post! {link} {hashtag}").format(link = str(comment.permalink), hashtag = "#reddit"))
                             print("Tweet made!")
                         except:
                             print("Tweet was not made. Skipping.")
