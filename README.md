@@ -18,7 +18,7 @@ Dependencies
 * [OpenCV](http://opencv.org/) for computer vision, image loading, image processing, etc. 
 * [PRAW](https://github.com/praw-dev/praw) to process reddit posts.  
 * [PyImgur](https://github.com/Damgaard/PyImgur) to handle uploading images to imgur.
-* [PIL](http://www.pythonware.com/products/pil/) Python Imaging Library. To do Image handling between OpenCV, local storage, Imgur, and urlib,
+* [PIL](http://www.pythonware.com/products/pil/) Python Imaging Library. To do Image handling between OpenCV, local storage, Imgur, and urllib,
 * [NumPy](http://www.numpy.org/) to handle images at a low level.
 
 Testimonials
