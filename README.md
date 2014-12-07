@@ -1,6 +1,7 @@
 PyDankReddit
 ============
-![weed-border](http://25.media.tumblr.com/tumblr_m9wyxuECn41r67vczo1_500.gif)
+![weed-border](http://25.media.tumblr.com/tumblr_m9wyxuECn41r67vczo1_500.gif)  
+Code for [/u/DealWithItbot](http://www.reddit.com/user/DealWithItbot/).  
 
 Processin' those dank reddits into may mays, in Python with PRAW, URLlib, and OpenCV,
 
