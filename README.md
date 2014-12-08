@@ -21,6 +21,7 @@ Dependencies
 * [PyImgur](https://github.com/Damgaard/PyImgur) to handle uploading images to imgur.
 * [PIL](http://www.pythonware.com/products/pil/) Python Imaging Library. To do Image handling between OpenCV, local storage, Imgur, and urllib,
 * [NumPy](http://www.numpy.org/) to handle images at a low level.
+* [TweePy](http://www.tweepy.org/) for Twitter posting.
 
 Testimonials
 ------------
