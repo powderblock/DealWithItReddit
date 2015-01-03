@@ -201,7 +201,7 @@ while True:
     for msg in r.get_unread(limit=None):
         available = 109 - len(str(msg.author))
         body = msg.body if len(str(msg.body)) <= available else str(msg.body)[:available]+ "\u2026"
-        api.update_status("'{body}' - \u\{author} {link}".format(body=body,author=msg.author,link=msg.permalink))
+        api.update_status("'{body}' - /u/{author} {link}".format(body=body,author=msg.author,link=msg.permalink))
         msg.mark_as_read()
         
 
