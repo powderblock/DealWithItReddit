@@ -38,9 +38,9 @@ Testimonials
 
 "NAIS MEME" - ~~Einstein~~ [/u/fourcrew2](https://reddit.com/u/fourcrew2)
 
-"You have been banned from posting to /r/cosplay" - ~~Betty White~~ /r/cosplay
+"You have been banned from posting to /r/cosplay" - ~~Betty White~~ [http://www.reddit.com/r/cosplay](/r/cosplay)
 
-"you have been banned from posting to /r/MakeupAddiction: Makeup Addiction." - ~~Bill Gates~~ /r/MakeupAddiction/
+"you have been banned from posting to /r/MakeupAddiction: Makeup Addiction." - ~~Bill Gates~~ [http://www.reddit.com/r/makeupaddiction](/r/MakeupAddiction/)
 
 License
 -------
