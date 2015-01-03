@@ -14,9 +14,13 @@ eyeData = "xml/eyes.xml"
 faceData = "xml/faces.xml"
 eyeClass = cv2.CascadeClassifier(eyeData)
 faceClass = cv2.CascadeClassifier(faceData)
+
 # Glasses Asset
 glasses = cv2.imread('assets/glasses.png', cv2.IMREAD_UNCHANGED)
+dealWithItText = cv2.imread('assets/dealWithItText.png', cv2.IMREAD_UNCHANGED)
 ratio = glasses.shape[1] / glasses.shape[0]
+ratioText = dealWithItText.shape[1] / dealWithItText.shape[0]
+
 # How much we are going to downscale image while processing it.
 DOWNSCALE = 4
 foundImage = False
@@ -99,6 +103,7 @@ def process_image(name, frame, eyes):
 # Check if a given url fits our needs
 def is_imgur_url(url):
     return "imgur.com" in url and (".jpg" in url or ".png" in url)
+
 
 # main loop
 while True:
