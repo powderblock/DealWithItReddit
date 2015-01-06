@@ -171,7 +171,7 @@ while True:
                     process_image(str(post.url), frame, eyes_to_use)
                     submission = r.get_submission(submission_id=post.id)
                     # Make a link with text deal with it, link points to the uploaded image.
-                    message = '[DEAL WITH IT]('+uploaded_image.link+')'
+                    message = '[DEAL WITH IT]({image_link})  ---  ^[feedback](http://www.reddit.com/message/compose/?to=powderblock&subject=DealWithItbot%20Feedback) ^[source](https://github.com/powderblock/PyDankReddit) ^[creator](http://www.reddit.com/user/powderblock/)'.format(image_link = uploaded_image.link)
                     try:
                         # Leave the comment
                         comment = submission.add_comment(message)
