@@ -171,7 +171,7 @@ while True:
                     process_image(str(post.url), frame, eyes_to_use)
                     submission = r.get_submission(submission_id=post.id)
                     # Make a link with text deal with it, link points to the uploaded image.
-                    message = '[DEAL WITH IT]({image_link})  ---  ^[feedback](http://www.reddit.com/message/compose/?to=powderblock&subject=DealWithItbot%20Feedback) ^[source](https://github.com/powderblock/PyDankReddit) ^[creator](http://www.reddit.com/user/powderblock/)'.format(image_link = uploaded_image.link)
+                    message = '[DEAL WITH IT]({image_link})\n\n***\n\n^[feedback](http://www.reddit.com/message/compose/?to=powderblock&subject=DealWithItbot%20Feedback) ^[source](https://github.com/powderblock/PyDankReddit) ^[creator](http://www.reddit.com/user/powderblock/)'.format(image_link = uploaded_image.link)
                     try:
                         # Leave the comment
                         comment = submission.add_comment(message)
@@ -201,8 +201,9 @@ while True:
     for msg in r.get_unread(limit=None):
         available = 109 - len(str(msg.author))
         body = msg.body if len(str(msg.body)) <= available else str(msg.body)[:available]+ "\u2026"
-        api.update_status("'{body}' - /u/{author} {link}".format(body=body,author=msg.author,link=msg.permalink))
+        #Mark as read goes before updating so if the message breaks, don't get stuck in a loop:
         msg.mark_as_read()
+        api.update_status("'{body}' -/u/{author} {link}".format(body=body,author=msg.author,link=msg.permalink))
         
 
     for i in user.get_comments():
