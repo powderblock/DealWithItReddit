@@ -97,7 +97,7 @@ def process_image(name, frame, eyes):
         global uploaded_image
         uploaded_image = im.upload_image(savedImage, title=savedImage)
         os.remove(str(savedImage))
-        print(uploaded_image.link)
+        print("Uploaded image with glasses: {}".format(uploaded_image.link))
 
 
 # Check if a given url fits our needs
@@ -148,7 +148,7 @@ while True:
                     continue
 
                 if frame.shape[0] == 0 or frame.shape[1] == 0:
-                    print("Image has a width or height of 0, skipping.")
+                    print("Image has a width or height of 0, skipping. (Image maybe be animated?)")
                     continue
 
                 minisize = (frame.shape[1]/DOWNSCALE,
