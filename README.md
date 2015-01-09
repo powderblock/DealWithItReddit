@@ -10,8 +10,8 @@ Should add some sw33t sunglasses onto your reddits rite now m8.
 Credits
 -------
 
-Developed by ([@powderblock](https://github.com/powderblock)).  
-Thanks to Caleb Jones ([@porglezomp](https://github.com/porglezomp)).
+Developed by Blade Nelson (GitHub: [@powderblock](https://github.com/powderblock), [/u/powderblock](http://www.reddit.com/user/powderblock/), and Twitter: [@powderblock](https://twitter.com/powderblock))  
+Thanks to Caleb Jones (GitHub: [@porglezomp](https://github.com/porglezomp) and Twitter:  [@stickfigure42](https://twitter.com/stickfigure42))
 
 Dependencies
 ------------
