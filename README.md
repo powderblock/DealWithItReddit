@@ -47,6 +47,6 @@ License
 
 Copyright (c) 2014 Blade Nelson  
 Licensed under the MIT license  
-See LICENSE for more details
+See [LICENSE](https://github.com/powderblock/PyDankReddit/blob/master/LICENSE) for more details
 
 ![weed-border](http://25.media.tumblr.com/tumblr_m9wyxuECn41r67vczo1_500.gif)
