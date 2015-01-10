@@ -203,7 +203,7 @@ while True:
         body = msg.body if len(str(msg.body)) <= available else str(msg.body)[:available]+ "\u2026"
         #Mark as read goes before updating so if the message breaks, don't get stuck in a loop:
         msg.mark_as_read()
-        api.update_status("'{body}' -/u/{author} {link}".format(body=body,author=msg.author,link=msg.permalink))
+        api.update_status("'{body}' -/u/{author} {link}{context}".format(body=body,author=msg.author,link=msg.permalink, context="?context=3"))
         
 
     for i in user.get_comments():
