@@ -101,8 +101,8 @@ def process_image(name, frame, eyes):
 
 
 # Check if a given url fits our needs
-def is_imgur_url(url):
-    return "imgur.com" in url and (".jpg" in url or ".png" in url)
+def is_image(url):
+    return (url[-4:] == ".png" or url[-4:] == ".jpg" or url[-5:] == ".jpeg")
 
 
 # main loop
@@ -127,7 +127,7 @@ while True:
             already_done.append(post)
             postsFile.write(post.id + "\n")
             postsFile.flush()
-            if is_imgur_url(post.url):
+            if is_image(post.url):
                 filename = str(post.url).replace(":", "").replace("/", "")
                 foundImage = True
                 response = urllib.urlopen(post.url)
