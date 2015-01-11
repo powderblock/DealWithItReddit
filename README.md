@@ -38,6 +38,8 @@ Testimonials
 
 "NAIS MEME" - ~~Einstein~~ [/u/fourcrew2](https://reddit.com/u/fourcrew2)
 
+"I love you" - ~~Your Mother~~ [/u/hvaccanbefun](http://www.reddit.com/user/hvaccanbefun)
+
 "You have been banned from posting to /r/cosplay" - ~~Betty White~~ [http://www.reddit.com/r/cosplay](/r/cosplay)
 
 "you have been banned from posting to /r/MakeupAddiction: Makeup Addiction." - ~~Bill Gates~~ [http://www.reddit.com/r/makeupaddiction](/r/MakeupAddiction/)
