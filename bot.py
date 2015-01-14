@@ -10,19 +10,35 @@ import os
 import tweepy
 from datetime import datetime
 
+# Super secret user information:
+client_id = imgurItems[0]
+username = redditItems[0]
+password = redditItems[1]
+
+#Auth Twitter:
+consumer_key = twitterItems[0]
+consumer_secret = twitterItems[1]
+
+access_token = twitterItems[2]
+access_token_secret = twitterItems[3]
+
 # client name
 r = praw.Reddit('/u/powderblock Glasses Bot')
 
 botAccount = r.get_redditor('DealWithItbot')
+
+lines = [line.split(',')[0] for line in open('karma.txt')]
+
+#Do this check BEFORE writing to karma.txt
+#Otherwise we are going to be reading current karma
+if(botAccount.comment_karma > lines[len(lines) - 1]):
+    print botAccount.comment_karma
+
 #Open karma.txt for karma saving:
 with open("karma.txt", "a+") as karmaFile:
 	karmaFile.write("{karma}, {timeAndDate}\n".format(karma = botAccount.comment_karma, timeAndDate = str(datetime.now())))
 	#Close the file:
 	karmaFile.close()
-
-lines = [line.strip(',') for line in open('karma.txt')]
-	
-print lines
 
 # Eye Classifier
 eyeData = "xml/eyes.xml"
@@ -62,17 +78,6 @@ postsFile = open("posts.txt", "a+")
 for post in range(0, len(postItems)):
     already_done.append(str(postItems[post]))
 
-# Super secret user information:
-client_id = imgurItems[0]
-username = redditItems[0]
-password = redditItems[1]
-
-consumer_key = twitterItems[0]
-consumer_secret = twitterItems[1]
-
-access_token = twitterItems[2]
-access_token_secret = twitterItems[3]
-
 
 def collide(eye, face):
     leftA = eye[0]
@@ -86,7 +91,6 @@ def collide(eye, face):
     # If a collision is found
     if rightA > leftB and leftA < rightB and bottomA > topB and topA < bottomB:
         return True
-    # Otherwise
     else:
         return False
 
@@ -156,16 +160,17 @@ while True:
                     # Skip to next image
                     continue
 
+                #If the image is too large, skip it:
                 if frame.shape[0] > 5000 or frame.shape[1] > 5000:
                     print("Image is too large, skipping.")
                     continue
 
+                #Protector against animated files:
                 if frame.shape[0] == 0 or frame.shape[1] == 0:
                     print("Image has a width or height of 0, skipping. (Image maybe be animated?)")
                     continue
 
-                minisize = (frame.shape[1]/DOWNSCALE,
-                            frame.shape[0]/DOWNSCALE)
+                minisize = (frame.shape[1]/DOWNSCALE, frame.shape[0]/DOWNSCALE)
                 miniframe = cv2.resize(frame, minisize)
                 eyes = eyeClass.detectMultiScale(miniframe)
                 faces = faceClass.detectMultiScale(miniframe)
@@ -216,8 +221,9 @@ while True:
         body = msg.body if len(str(msg.body)) <= available else str(msg.body)[:available]+ "\u2026"
         #Mark as read goes before updating so if the message breaks, don't get stuck in a loop:
         msg.mark_as_read()
+        #Tweet about the new message
         api.update_status("'{body}' -/u/{author} {link}{context}".format(body=body,author=msg.author,link=msg.permalink, context="?context=3"))
-        
+
 
     for i in user.get_comments():
         if i.score <= int(-1):
