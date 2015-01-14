@@ -8,6 +8,14 @@ import re
 import pyimgur
 import os
 import tweepy
+from datetime import datetime
+
+# client name
+r = praw.Reddit('/u/powderblock Glasses Bot')
+
+currentTime = str(datetime.now())
+botAccount = r.get_redditor('DealWithItbot')
+print botAccount.comment_karma
 
 # Eye Classifier
 eyeData = "xml/eyes.xml"
@@ -31,10 +39,10 @@ already_done = []
 
 line_regex = re.compile(r"(?<=:).+")
 post_regex = re.compile(r"().+")
-reddit = line_regex.finditer(open("redditInfo", "r").read())
-posts = post_regex.finditer(open("posts", "r").read())
-imgur = line_regex.finditer(open("imgurInfo", "r").read())
-twitter = line_regex.finditer(open("twitterInfo", "r").read())
+reddit = line_regex.finditer(open("redditInfo.txt", "a+").read())
+posts = post_regex.finditer(open("posts.txt", "a+").read())
+imgur = line_regex.finditer(open("imgurInfo.txt", "a+").read())
+twitter = line_regex.finditer(open("twitterInfo.txt", "a+").read())
 
 redditItems = [item.group(0).strip() for item in reddit]
 imgurItems = [item.group(0).strip() for item in imgur]
@@ -42,7 +50,7 @@ twitterItems = [item.group(0).strip() for item in twitter]
 postItems = [item.group(0).strip() for item in posts]
 
 # File to load post IDs from
-postsFile = open("posts", "a")
+postsFile = open("posts.txt", "a+")
 
 for post in range(0, len(postItems)):
     already_done.append(str(postItems[post]))
@@ -109,8 +117,6 @@ def is_image(url):
 while True:
     eyesInImage = False
     foundImage = False
-    # client name
-    r = praw.Reddit('/u/powderblock Glasses Bot')
     # Auth Reddit
     r.login(username, password)
     user = r.get_redditor('DealWithItbot')

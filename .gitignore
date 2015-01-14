@@ -53,10 +53,10 @@ docs/_build/
 # PyBuilder
 target/
 
-# Secret
-imgurInfo
-redditInfo
-twitterInfo
+# Secret Information
+imgurInfo.txt
+redditInfo.txt
+twitterInfo.txt
 
 # posts
-posts
+posts.txt
