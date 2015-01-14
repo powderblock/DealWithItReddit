@@ -13,9 +13,16 @@ from datetime import datetime
 # client name
 r = praw.Reddit('/u/powderblock Glasses Bot')
 
-currentTime = str(datetime.now())
 botAccount = r.get_redditor('DealWithItbot')
-print botAccount.comment_karma
+#Open karma.txt for karma saving:
+with open("karma.txt", "a+") as karmaFile:
+	karmaFile.write("{karma}, {timeAndDate}\n".format(karma = botAccount.comment_karma, timeAndDate = str(datetime.now())))
+	#Close the file:
+	karmaFile.close()
+
+lines = [line.strip(',') for line in open('karma.txt')]
+	
+print lines
 
 # Eye Classifier
 eyeData = "xml/eyes.xml"
