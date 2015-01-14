@@ -10,36 +10,6 @@ import os
 import tweepy
 from datetime import datetime
 
-# Super secret user information:
-client_id = imgurItems[0]
-username = redditItems[0]
-password = redditItems[1]
-
-#Auth Twitter:
-consumer_key = twitterItems[0]
-consumer_secret = twitterItems[1]
-
-access_token = twitterItems[2]
-access_token_secret = twitterItems[3]
-
-# client name
-r = praw.Reddit('/u/powderblock Glasses Bot')
-
-botAccount = r.get_redditor('DealWithItbot')
-
-lines = [line.split(',')[0] for line in open('karma.txt')]
-
-#Do this check BEFORE writing to karma.txt
-#Otherwise we are going to be reading current karma
-if(botAccount.comment_karma > lines[len(lines) - 1]):
-    print botAccount.comment_karma
-
-#Open karma.txt for karma saving:
-with open("karma.txt", "a+") as karmaFile:
-	karmaFile.write("{karma}, {timeAndDate}\n".format(karma = botAccount.comment_karma, timeAndDate = str(datetime.now())))
-	#Close the file:
-	karmaFile.close()
-
 # Eye Classifier
 eyeData = "xml/eyes.xml"
 faceData = "xml/faces.xml"
@@ -71,6 +41,46 @@ redditItems = [item.group(0).strip() for item in reddit]
 imgurItems = [item.group(0).strip() for item in imgur]
 twitterItems = [item.group(0).strip() for item in twitter]
 postItems = [item.group(0).strip() for item in posts]
+
+# Super secret user information:
+client_id = imgurItems[0]
+username = redditItems[0]
+password = redditItems[1]
+
+#Auth Twitter:
+consumer_key = twitterItems[0]
+consumer_secret = twitterItems[1]
+
+access_token = twitterItems[2]
+access_token_secret = twitterItems[3]
+
+# Auth api client
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.secure = True
+auth.set_access_token(access_token, access_token_secret)
+
+api = tweepy.API(auth)
+
+# client name
+r = praw.Reddit('/u/powderblock Glasses Bot')
+
+botAccount = r.get_redditor('DealWithItbot')
+
+lines = [line.split(',')[0] for line in open('karma.txt')]
+
+lastKarma = lines[len(lines) - 1]
+
+#Do this check BEFORE writing to karma.txt
+#Otherwise we are going to be reading current karma
+if(botAccount.comment_karma > int(lastKarma)):
+    print "Bot account is higher than last recorded karma"
+    print botAccount.comment_karma
+    api.update_profile(description="Karma: {}".format(botAccount.comment_karma))
+    #Open karma.txt for karma saving:
+    with open("karma.txt", "a+") as karmaFile:
+        karmaFile.write("{karma}, {timeAndDate}\n".format(karma = botAccount.comment_karma, timeAndDate = str(datetime.now())))
+	#Close the file:
+        karmaFile.close()
 
 # File to load post IDs from
 postsFile = open("posts.txt", "a+")
