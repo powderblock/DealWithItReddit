@@ -58,8 +58,7 @@ imgurInfo.txt
 redditInfo.txt
 twitterInfo.txt
 
-# posts
+# House keeping files:
 posts.txt
-
-#karma
+logs.txt
 karma.txt

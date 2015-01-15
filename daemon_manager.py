@@ -1,6 +1,7 @@
 import sys
 import subprocess as sp
 import time
+from datetime import datetime
 
 usage_message = """
 Usage: {} <script.py>
@@ -46,5 +47,9 @@ while True:
         break
     print("")
     print(crash_message.format(pretty_time(time.time() - start)))
-    time.sleep(5)
+    with open("log.txt", "a+") as logFile:
+        logFile.write("{uptime}, {timeAndDate}\n".format(uptime = pretty_time(time.time() - start), timeAndDate = str(datetime.now())))
+	#Close the file:
+        logFile.close()
+    time.sleep(3)
     print("Restarting...")
