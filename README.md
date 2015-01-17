@@ -40,6 +40,8 @@ Testimonials
 
 "I love you" - ~~Your Mother~~ [/u/hvaccanbefun](http://www.reddit.com/user/hvaccanbefun)
 
+"Best bot 2015 I don't even care." - ~~Icona Pop~~ [/u/PatriotsFTW](http://www.reddit.com/user/PatriotsFTW)
+
 "You have been banned from posting to /r/cosplay" - ~~Betty White~~ [http://www.reddit.com/r/cosplay](/r/cosplay)
 
 "you have been banned from posting to /r/MakeupAddiction: Makeup Addiction." - ~~Bill Gates~~ [http://www.reddit.com/r/makeupaddiction](/r/MakeupAddiction/)
