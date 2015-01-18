@@ -235,7 +235,7 @@ while True:
 
     for msg in r.get_unread(limit=None):
         available = 109 - len(str(msg.author))
-        body = msg.body if len(str(msg.body)) <= available else str(msg.body)[:available]+ "\u2026"
+        body = msg.body if len(str(msg.body)) <= available else unicode((msg.body)[:available]+ "\u2026")
         #Mark as read goes before updating so if the message breaks, don't get stuck in a loop:
         msg.mark_as_read()
         #Tweet about the new message
@@ -243,6 +243,7 @@ while True:
             api.update_status("'{body}' -/u/{author} {link}{context}".format(body=body,author=msg.author,link=msg.permalink, context="?context=3"))
         except:
             print("Tweet was not made. Skipping.")
+
     removeNeg()
 
     time.sleep(30)
