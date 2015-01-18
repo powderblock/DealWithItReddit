@@ -134,6 +134,13 @@ def is_image(url):
     return (url[-4:] == ".png" or url[-4:] == ".jpg" or url[-5:] == ".jpeg")
 
 
+def removeNeg():
+    for i in user.get_comments():
+        if i.score <= int(-1):
+            i.delete()
+            print("Removed comment because score was too low.")
+
+
 # main loop
 while True:
     eyesInImage = False
@@ -232,11 +239,10 @@ while True:
         #Mark as read goes before updating so if the message breaks, don't get stuck in a loop:
         msg.mark_as_read()
         #Tweet about the new message
-        api.update_status("'{body}' -/u/{author} {link}{context}".format(body=body,author=msg.author,link=msg.permalink, context="?context=3"))
-
-
-    for i in user.get_comments():
-        if i.score <= int(-1):
-            i.delete()
+        try:
+            api.update_status("'{body}' -/u/{author} {link}{context}".format(body=body,author=msg.author,link=msg.permalink, context="?context=3"))
+        except:
+            print("Tweet was not made. Skipping.")
+    removeNeg()
 
     time.sleep(30)
