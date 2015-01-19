@@ -296,7 +296,7 @@ while True:
             lines = [line.split(',')[0] for line in karmafile]
 
         lastKarma = lines[-1]
-        karma_status = "Currently I have {karma}, yesterday I gained {yesterday} karma.".format(
+        karma_status = "Currently I have {karma} karma, yesterday I gained {yesterday} karma.".format(
             karma=botAccount.comment_karma,
             yesterday=karma_yesterday()
         )
