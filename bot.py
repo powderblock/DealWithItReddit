@@ -27,8 +27,11 @@ DOWNSCALE = 4
 foundImage = False
 eyesInImage = False
 
+ONE_HOUR = 60*60
+last_profile_update = 0
+
 # List of posts already processed.
-already_done = []
+already_done = set()
 
 line_regex = re.compile(r"(?<=:).+")
 post_regex = re.compile(r"().+")
@@ -64,29 +67,22 @@ api = tweepy.API(auth)
 # client name
 r = praw.Reddit('/u/powderblock Glasses Bot')
 
+# Message template for formatting posts
+message_template = """[DEAL WITH IT]({image_link})
+
+***
+
+^[feedback](http://www.reddit.com/message/compose/?to=powderblock&subject=DealWithItbot%20Feedback) \
+^[source](https://github.com/powderblock/PyDankReddit) \
+^[creator](http://www.reddit.com/user/powderblock/)"""
+
 botAccount = r.get_redditor('DealWithItbot')
-
-lines = [line.split(',')[0] for line in open('karma.txt')]
-
-lastKarma = lines[len(lines) - 1]
-
-#Do this check BEFORE writing to karma.txt
-#Otherwise we are going to be reading current karma
-if(botAccount.comment_karma > int(lastKarma)):
-    print "Bot account is higher than last recorded karma"
-    print botAccount.comment_karma
-    api.update_profile(description="Karma: {}".format(botAccount.comment_karma))
-    #Open karma.txt for karma saving:
-    with open("karma.txt", "a+") as karmaFile:
-        karmaFile.write("{karma}, {timeAndDate}\n".format(karma = botAccount.comment_karma, timeAndDate = str(datetime.now())))
-	#Close the file:
-        karmaFile.close()
 
 # File to load post IDs from
 postsFile = open("posts.txt", "a+")
 
 for post in range(0, len(postItems)):
-    already_done.append(str(postItems[post]))
+    already_done.add(str(postItems[post]))
 
 
 def collide(eye, face):
@@ -140,6 +136,41 @@ def removeNeg():
             i.delete()
             print("Removed comment because score was too low.")
 
+def karma_yesterday():
+    # Create karma.txt if it doesn't exist
+    if not os.path.isfile("karma.txt"):
+        open("karma.txt", "a").close()
+
+    # Get all the karma data from the file into a list
+    with open("karma.txt", "r") as karmafile:
+        karma = karmafile.readlines()
+
+    # Remove all the surrounding whitespace
+    karma = [line.strip() for line in karma]
+    # Split all of the strings into tuples on the comma, and remove invalid entries
+    karma = [tuple(line.split(",")) for line in karma if len(line.split(",")) == 2]
+    # Convert the karma string to an int and the timestamp to a date
+    datefmt = "%Y-%m-%d %H:%M:%S.%f"
+    karma = [(datetime.strptime(d.strip(), datefmt), int(k)) for k, d in karma]
+    # Sort the karma based on datetime
+    karma.sort()
+    # Remove the time information from the datetime, we don't care about it anymore
+    karma = [(dt.date(), k) for dt, k in karma]
+
+    # The `days` will contain the first entry from each day
+    # We insert the first entry as the base case, since it will always be
+    # the first we have from that day (we sorted it)
+    days = [karma[0]]
+    for day in karma:
+        # If this entry is from a new day add it to `days`
+        if day[0] != days[-1][0]:
+            days.append(day)
+
+    # Get rid of the information about what day it is,
+    # we only care about start-of-day karma
+    days = [day[1] for day in days]
+    # Return the amount of karma gained during the previous day
+    return days[-1] - days[-2]
 
 # main loop
 while True:
@@ -158,7 +189,7 @@ while True:
     for post in r.get_subreddit('all').get_new(limit=20):
         if post not in already_done:
             count += 1
-            already_done.append(post)
+            already_done.add(post)
             postsFile.write(post.id + "\n")
             postsFile.flush()
             if is_image(post.url):
@@ -206,7 +237,7 @@ while True:
                     process_image(str(post.url), frame, eyes_to_use)
                     submission = r.get_submission(submission_id=post.id)
                     # Make a link with text deal with it, link points to the uploaded image.
-                    message = '[DEAL WITH IT]({image_link})\n\n***\n\n^[feedback](http://www.reddit.com/message/compose/?to=powderblock&subject=DealWithItbot%20Feedback) ^[source](https://github.com/powderblock/PyDankReddit) ^[creator](http://www.reddit.com/user/powderblock/)'.format(image_link = uploaded_image.link)
+                    message = message_template.format(image_link = uploaded_image.link)
                     try:
                         # Leave the comment
                         comment = submission.add_comment(message)
@@ -214,7 +245,10 @@ while True:
                               message)
                         try:
                             # Post to twitter
-                            api.update_status(("New Post! {link} {hashtag}").format(link = str(comment.permalink), hashtag = "#reddit"))
+                            api.update_status(("New Post! {link} {hashtag}").format(
+                                link=str(comment.permalink),
+                                hashtag = "#reddit"
+                            ))
                             print("Tweet made!")
                         except:
                             print("Tweet was not made. Skipping.")
@@ -240,10 +274,37 @@ while True:
         msg.mark_as_read()
         #Tweet about the new message
         try:
-            api.update_status("'{body}' -/u/{author} {link}{context}".format(body=body,author=msg.author,link=msg.permalink, context="?context=3"))
+            api.update_status("'{body}' -/u/{author} {link}{context}".format(
+                body=body,
+                author=msg.author,
+                link=msg.permalink,
+                context="?context=3"
+            ))
         except:
             print("Tweet was not made. Skipping.")
 
     removeNeg()
 
     time.sleep(30)
+
+    # Only update the status once per hour
+    if (time.time() - last_profile_update > ONE_HOUR):
+        last_profile_update = time.time()
+        # Do this check BEFORE writing to karma.txt
+        # Otherwise we are going to be reading current karma
+        with open("karma.txt", "r") as karmafile:
+            lines = [line.split(',')[0] for line in karmafile]
+
+        lastKarma = lines[-1]
+        karma_status = "Currently I have {karma} karma, yesterday I gained {yesterday} karma.".format(
+            karma=botAccount.comment_karma,
+            yesterday=karma_yesterday()
+        )
+        api.update_profile(description=karma_status)
+        print(karma_status)
+        #Open karma.txt for karma saving:
+        with open("karma.txt", "a+") as karmaFile:
+            karmaFile.write("{karma}, {timeAndDate}\n".format(
+                karma = botAccount.comment_karma,
+                timeAndDate = str(datetime.now())
+            ))
