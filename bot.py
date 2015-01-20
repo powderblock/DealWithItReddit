@@ -136,6 +136,19 @@ def removeNeg():
             i.delete()
             print("Removed comment because score was too low.")
 
+# function to check for duplicate comments:
+def removeDupes():
+    comments = set()
+    for i in user.get_comments():
+        if i.submission.id in comments:
+            # Check and make sure the bot made comment
+            # Creator may comment on a single post multiple times within several minutes.
+            if "DEAL WITH IT" in i.body:
+                print("Duplicate post found. Removing post.")
+                i.delete()
+            
+        comments.add(i.submission.id)
+
 def karma_yesterday():
     # Create karma.txt if it doesn't exist
     if not os.path.isfile("karma.txt"):
@@ -283,6 +296,7 @@ while True:
         except:
             print("Tweet was not made. Skipping.")
 
+    removeDupes()
     removeNeg()
 
     time.sleep(30)
