@@ -257,8 +257,12 @@ while True:
                         print("Comment has been left. Here's what it says: " +
                               message)
                         try:
+                            if submission.over_18:
+                                NSFW = "[Not Safe For Work!]"
+                            if not submission.over_18:
+                                NSFW = "[Safe For Work!]"
                             # Post to twitter
-                            api.update_status(("New Post! {link} {hashtag}").format(
+                            api.update_status(("New Post! {link} {hashtag} " + NSFW).format(
                                 link=str(comment.permalink),
                                 hashtag = "#reddit"
                             ))
