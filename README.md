@@ -5,6 +5,8 @@ Code for [/u/DealWithItbot](http://www.reddit.com/user/DealWithItbot/).
 
 Processin' those dank reddits into may mays using Python with PRAW and OpenCV.
 
+PyDankReddit is the backbone to a Reddit bot that finds faces and eyes in images. When a pair of eyes are found within a face, a pair of "[Deal With it](https://raw.githubusercontent.com/powderblock/PyDankReddit/master/assets/glasses.png)" glasses are added.
+
 Should add some sw33t sunglasses onto your reddits rite now m8.
 
 Credits
