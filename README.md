@@ -48,6 +48,9 @@ Testimonials
 
 "you have been banned from posting to /r/MakeupAddiction: Makeup Addiction." - ~~Bill Gates~~ [http://www.reddit.com/r/makeupaddiction](/r/MakeupAddiction/)
 
+~Reddit Admins Love us!~
+"i am banning this shit wherever I see it" - [Pallas-Athena](http://www.reddit.com/user/Pallas-Athena) (mod of 38.43 trillion reddits)
+
 License
 -------
 
