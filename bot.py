@@ -222,7 +222,10 @@ while True:
     api = tweepy.API(auth)
     count = 0
     for post in r.get_subreddit('all').get_new(limit=20):
-        if post not in already_done:
+        done = post in already_done
+        subreddit = post.subreddit
+        author = post.author
+        if not done and subreddit not in blacklisted_subs and author not in blacklisted_users:
             count += 1
             already_done.add(post)
             postsFile.write(post.id + "\n")
