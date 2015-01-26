@@ -62,6 +62,28 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.secure = True
 auth.set_access_token(access_token, access_token_secret)
 
+# Create blacklist_subs.txt if it doesn't exist
+if not os.path.isfile("blacklist_subs.txt"):
+	open("blacklist_subs.txt", "a").close()
+
+# Get all the blacklisted subs, put them into a list
+with open("blacklist_subs.txt", "r") as blacklist_subs:
+	blacklisted_subs = blacklist_subs.readlines()
+	blacklisted_subs = [sub.strip('\n') for sub in blacklisted_subs]
+	
+print blacklisted_subs
+
+# Create blacklist_subs.txt if it doesn't exist
+if not os.path.isfile("blacklist_users.txt"):
+	open("blacklist_users.txt", "a").close()
+	
+# Get all the blacklisted subs, put them into a list
+with open("blacklist_users.txt", "r") as blacklist_users:
+	blacklisted_users = blacklist_users.readlines()
+	blacklisted_users = [user.strip('\n') for user in blacklisted_users]
+	
+print blacklisted_users
+
 api = tweepy.API(auth)
 
 # client name

@@ -62,3 +62,7 @@ twitterInfo.txt
 posts.txt
 log.txt
 karma.txt
+
+#blacklists:
+blacklist_subs.txt
+blacklist_users.txt
