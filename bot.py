@@ -64,25 +64,21 @@ auth.set_access_token(access_token, access_token_secret)
 
 # Create blacklist_subs.txt if it doesn't exist
 if not os.path.isfile("blacklist_subs.txt"):
-	open("blacklist_subs.txt", "a").close()
+    open("blacklist_subs.txt", "a").close()
 
 # Get all the blacklisted subs, put them into a list
 with open("blacklist_subs.txt", "r") as blacklist_subs:
-	blacklisted_subs = blacklist_subs.readlines()
-	blacklisted_subs = [sub.strip('\n') for sub in blacklisted_subs]
-	
-print blacklisted_subs
+    blacklisted_subs = blacklist_subs.readlines()
+    blacklisted_subs = [sub.strip('\n') for sub in blacklisted_subs]
 
 # Create blacklist_subs.txt if it doesn't exist
 if not os.path.isfile("blacklist_users.txt"):
-	open("blacklist_users.txt", "a").close()
-	
+    open("blacklist_users.txt", "a").close()
+    
 # Get all the blacklisted subs, put them into a list
 with open("blacklist_users.txt", "r") as blacklist_users:
-	blacklisted_users = blacklist_users.readlines()
-	blacklisted_users = [user.strip('\n') for user in blacklisted_users]
-	
-print blacklisted_users
+    blacklisted_users = blacklist_users.readlines()
+    blacklisted_users = [user.strip('\n') for user in blacklisted_users]
 
 api = tweepy.API(auth)
 
@@ -207,6 +203,23 @@ def karma_yesterday():
     # Return the amount of karma gained during the previous day
     return days[-1] - days[-2]
 
+def checkMessages():
+    for msg in r.get_unread(limit=None):
+        available = 109 - len(str(msg.author))
+        body = msg.body if len(str(msg.body)) <= available else unicode((msg.body)[:available]+ "\u2026")
+        #Mark as read goes before updating so if the message breaks, don't get stuck in a loop:
+        msg.mark_as_read()
+        #Tweet about the new message
+        try:
+            api.update_status("'{body}' -/u/{author} {link}{context}".format(
+            body=body,
+            author=msg.author,
+            link=msg.permalink,
+            context="?context=3"
+            ))
+        except:
+            print("Tweet was not made. Skipping.")
+
 # main loop
 while True:
     eyesInImage = False
@@ -309,22 +322,7 @@ while True:
             "s" if count > 1 else ""
         ))
 
-    for msg in r.get_unread(limit=None):
-        available = 109 - len(str(msg.author))
-        body = msg.body if len(str(msg.body)) <= available else unicode((msg.body)[:available]+ "\u2026")
-        #Mark as read goes before updating so if the message breaks, don't get stuck in a loop:
-        msg.mark_as_read()
-        #Tweet about the new message
-        try:
-            api.update_status("'{body}' -/u/{author} {link}{context}".format(
-                body=body,
-                author=msg.author,
-                link=msg.permalink,
-                context="?context=3"
-            ))
-        except:
-            print("Tweet was not made. Skipping.")
-
+    checkMessages()
     removeDupes()
     removeNeg()
 
