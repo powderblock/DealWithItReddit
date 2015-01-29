@@ -154,6 +154,7 @@ def removeNeg():
             i.delete()
             print("Removed comment because score was too low.")
 
+
 # function to check for duplicate comments:
 def removeDupes():
     comments = set()
@@ -166,6 +167,7 @@ def removeDupes():
                 i.delete()
             
         comments.add(i.submission.id)
+
 
 def karma_yesterday():
     # Create karma.txt if it doesn't exist
@@ -203,6 +205,7 @@ def karma_yesterday():
     # Return the amount of karma gained during the previous day
     return days[-1] - days[-2]
 
+
 def checkMessages():
     for msg in r.get_unread(limit=None):
         available = 109 - len(str(msg.author))
@@ -219,6 +222,7 @@ def checkMessages():
             ))
         except:
             print("Tweet was not made. Skipping.")
+
 
 # main loop
 while True:
