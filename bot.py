@@ -50,7 +50,7 @@ client_id = imgurItems[0]
 username = redditItems[0]
 password = redditItems[1]
 
-#Auth Twitter:
+# Auth Twitter:
 consumer_key = twitterItems[0]
 consumer_secret = twitterItems[1]
 
@@ -207,7 +207,7 @@ def checkMessages():
     for msg in r.get_unread(limit=None):
         available = 109 - len(str(msg.author))
         body = msg.body if len(str(msg.body)) <= available else unicode((msg.body)[:available]+ "\u2026")
-        #Mark as read goes before updating so if the message breaks, don't get stuck in a loop:
+        # Mark as read goes before updating so if the message breaks, don't get stuck in a loop:
         msg.mark_as_read()
         #Tweet about the new message
         try:
@@ -259,12 +259,12 @@ while True:
                     # Skip to next image
                     continue
 
-                #If the image is too large, skip it:
+                # If the image is too large, skip it:
                 if frame.shape[0] > 5000 or frame.shape[1] > 5000:
                     print("Image is too large, skipping.")
                     continue
 
-                #Protector against animated files:
+                # Protector against animated files:
                 if frame.shape[0] == 0 or frame.shape[1] == 0:
                     print("Image has a width or height of 0, skipping. (Image maybe be animated?)")
                     continue
@@ -343,7 +343,7 @@ while True:
         )
         api.update_profile(description=karma_status)
         print(karma_status)
-        #Open karma.txt for karma saving:
+        # Open karma.txt for karma saving:
         with open("karma.txt", "a+") as karmaFile:
             karmaFile.write("{karma}, {timeAndDate}\n".format(
                 karma = botAccount.comment_karma,
