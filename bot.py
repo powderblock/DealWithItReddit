@@ -183,7 +183,11 @@ def karma_yesterday():
     # Split all of the strings into tuples on the comma, and remove invalid entries
     karma = [tuple(line.split(",")) for line in karma if len(line.split(",")) == 2]
     # Convert the karma string to an int and the timestamp to a date
-    datefmt = "%Y-%m-%d %H:%M:%S.%f"
+    try:
+        datefmt = "%Y-%m-%d %H:%M:%S.%f"
+
+    except:
+        datefmt = "%Y-%m-%d %H:%M:%S"
     karma = [(datetime.strptime(d.strip(), datefmt), int(k)) for k, d in karma]
     # Sort the karma based on datetime
     karma.sort()
@@ -208,8 +212,8 @@ def karma_yesterday():
 
 def checkMessages():
     for msg in r.get_unread(limit=None):
-        available = 109 - len(str(msg.author))
-        body = msg.body if len(str(msg.body)) <= available else unicode((msg.body)[:available]+ "\u2026")
+        available = 109 - len(unicode(msg.author))
+        body = msg.body if len(unicode(msg.body)) <= available else unicode((msg.body)[:available]+ "\u2026")
         # Mark as read goes before updating so if the message breaks, don't get stuck in a loop:
         msg.mark_as_read()
         #Tweet about the new message
