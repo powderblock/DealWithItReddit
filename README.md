@@ -54,7 +54,7 @@ Testimonials
 License
 -------
 
-Copyright (c) 2014 Blade Nelson  
+Copyright (c) 2014-2015 Blade Nelson  
 Licensed under the MIT license  
 See [LICENSE](https://github.com/powderblock/PyDankReddit/blob/master/LICENSE) for more details
 
