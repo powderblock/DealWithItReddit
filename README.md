@@ -1,6 +1,5 @@
 PyDankReddit
 ============
-![weed-border](http://25.media.tumblr.com/tumblr_m9wyxuECn41r67vczo1_500.gif)  
 Code for [/u/DealWithItbot](http://www.reddit.com/user/DealWithItbot/).  
 
 Processin' those dank reddits into may mays using Python with PRAW and OpenCV.
@@ -57,5 +56,3 @@ License
 Copyright (c) 2014-2015 Blade Nelson  
 Licensed under the MIT license  
 See [LICENSE](https://github.com/powderblock/PyDankReddit/blob/master/LICENSE) for more details
-
-![weed-border](http://25.media.tumblr.com/tumblr_m9wyxuECn41r67vczo1_500.gif)
