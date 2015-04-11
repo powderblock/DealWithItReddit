@@ -12,7 +12,7 @@ Credits
 -------
 
 Developed by Blade Nelson (GitHub: [@powderblock](https://github.com/powderblock), [/u/powderblock](http://www.reddit.com/user/powderblock/), and Twitter: [@powderblock](https://twitter.com/powderblock))  
-Thanks to Caleb Jones (GitHub: [@porglezomp](https://github.com/porglezomp) and Twitter:  [@stickfigure42](https://twitter.com/stickfigure42))
+Thanks to Caleb Jones (GitHub: [@porglezomp](https://github.com/porglezomp) and Twitter:  [@porglezomp](https://twitter.com/porglezomp))
 
 Dependencies
 ------------
