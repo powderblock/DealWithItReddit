@@ -18,9 +18,7 @@ faceClass = cv2.CascadeClassifier(faceData)
 
 # Glasses Asset
 glasses = cv2.imread('assets/glasses.png', cv2.IMREAD_UNCHANGED)
-dealWithItText = cv2.imread('assets/dealWithItText.png', cv2.IMREAD_UNCHANGED)
 ratio = glasses.shape[1] / glasses.shape[0]
-ratioText = dealWithItText.shape[1] / dealWithItText.shape[0]
 
 # How much we are going to downscale image while processing it.
 DOWNSCALE = 4
@@ -83,7 +81,7 @@ with open("blacklist_users.txt", "r") as blacklist_users:
 api = tweepy.API(auth)
 
 # client name
-r = praw.Reddit('/u/powderblock Glasses Bot')
+r = praw.Reddit('/u/powderblock Glasses')
 
 # Message template for formatting posts
 message_template = """[DEAL WITH IT]({image_link})
@@ -94,7 +92,7 @@ message_template = """[DEAL WITH IT]({image_link})
 ^[source](https://github.com/powderblock/PyDankReddit) \
 ^[creator](http://www.reddit.com/user/powderblock/)"""
 
-botAccount = r.get_redditor('DealWithItbot')
+botAccount = r.get_redditor('DEAL_WITH_IT_bot')
 
 # File to load post IDs from
 postsFile = open("posts.txt", "a+")
@@ -187,7 +185,7 @@ def karma_yesterday():
         datefmt = "%Y-%m-%d %H:%M:%S.%f"
 
     except:
-        datefmt = "%Y-%m-%d %H:%M:%S"
+        datefmt = "%Y-%m-%d %H:%M:%S.000000"
     karma = [(datetime.strptime(d.strip(), datefmt), int(k)) for k, d in karma]
     # Sort the karma based on datetime
     karma.sort()
@@ -212,11 +210,15 @@ def karma_yesterday():
 
 def checkMessages():
     for msg in r.get_unread(limit=None):
+        msg.mark_as_read()
+        try: r.send_message('powderblock', 'New message!', '{body} -/u/{author} {link}{context}'.format( body=body, author=msg.author, link=msg.permalink, context="?context=3"))
+
+        except: print("Message was not sent.")
         available = 109 - len(unicode(msg.author))
         body = msg.body if len(unicode(msg.body)) <= available else unicode((msg.body)[:available]+ "\u2026")
         # Mark as read goes before updating so if the message breaks, don't get stuck in a loop:
-        msg.mark_as_read()
         #Tweet about the new message
+
         try:
             api.update_status("'{body}' -/u/{author} {link}{context}".format(
             body=body,
@@ -224,8 +226,8 @@ def checkMessages():
             link=msg.permalink,
             context="?context=3"
             ))
-        except:
-            print("Tweet was not made. Skipping.")
+
+        except: print("Tweet was not made. Skipping.")
 
 
 # main loop
@@ -234,7 +236,7 @@ while True:
     foundImage = False
     # Auth Reddit
     r.login(username, password)
-    user = r.get_redditor('DealWithItbot')
+    user = r.get_redditor('DEAL_WITH_IT_bot')
     # Auth Twitter
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.secure = True
