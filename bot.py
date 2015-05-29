@@ -220,7 +220,7 @@ def checkMessages():
         #Tweet about the new message
 
         try:
-            api.update_status("'{body}' -/u/{author} {link}{context}".format(
+            api.update_status(status = "'{body}' -/u/{author} {link}{context}".format(
             body=body,
             author=msg.author,
             link=msg.permalink,
@@ -310,9 +310,10 @@ while True:
                             if not submission.over_18:
                                 NSFW = "[Safe For Work!]"
                             # Post to twitter
-                            api.update_status(("New Post! {link} {hashtag} " + NSFW).format(
+                            api.update_status(status = "New Post! {link} {hashtag} {nsfw_tag}".format(
                                 link=str(comment.permalink),
-                                hashtag = "#reddit"
+                                hashtag = "#reddit",
+								nsfw_tag = NSFW
                             ))
                             print("Tweet made!")
                         except:
