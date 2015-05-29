@@ -26,16 +26,16 @@ def pretty_time(t):
     if t >= 3600:
         return "{}h {}m {}s".format(
             int(t//3600),
-            int(t//60)%60,
-            format(t%60, "0.0f")
+            int(t//60) % 60,
+            format(t % 60, "0.0f")
         )
     elif t >= 60:
         return "{}m {}s".format(
-            int(t//60)%60,
-            format(t%60, "0.1f")
+            int(t//60) % 60,
+            format(t % 60, "0.1f")
         )
     else:
-        return "{}s".format(format(t%60, "0.2f"))
+        return "{}s".format(format(t % 60, "0.2f"))
 
 while True:
     start = time.time()
@@ -48,8 +48,11 @@ while True:
     print("")
     print(crash_message.format(pretty_time(time.time() - start)))
     with open("log.txt", "a+") as logFile:
-        logFile.write("{uptime}, {timeAndDate}\n".format(uptime = pretty_time(time.time() - start), timeAndDate = str(datetime.now())))
-	#Close the file:
+        logFile.write("{uptime}, {timeAndDate}\n".format(
+            uptime=pretty_time(time.time() - start),
+            timeAndDate=str(datetime.now())
+        ))
+    # Close the file:
         logFile.close()
     time.sleep(3)
     print("Restarting...")
