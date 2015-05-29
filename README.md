@@ -1,6 +1,6 @@
 PyDankReddit
 ============
-Code for [/u/DealWithItbot](http://www.reddit.com/user/DealWithItbot/).  
+Code for [/u/DEAL_WITH_IT_bot](http://www.reddit.com/user/DEAL_WITH_IT_bot).  
 
 Processin' those dank reddits into may mays using Python with PRAW and OpenCV.
 
