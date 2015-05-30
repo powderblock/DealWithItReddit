@@ -3,7 +3,7 @@ import os
 import dankutil
 
 
-def get_config(fname, setup_items=None):
+def get_config(fname, setup_items=[], default_items={}):
     dankutil.ensure_file_exists(fname)
     with open(fname, "r") as f:
         text = f.read()
@@ -33,8 +33,12 @@ def get_config(fname, setup_items=None):
 
                 # Write the newly chosen value to the config file
                 f.write('{} = "{}"\n'.format(name, new_value))
+
+        for name in default_items:
+            if name not in config:
+                # Perform the same type of update using the default items
+                new_value = default_items[name]
+                config[name] = new_value
+                f.write('{} = "{}"\n'.format(name, new_value))
+
     return config
-
-
-needed_config = ["username", "password", "new_attr", "twitter_something"]
-print(get_config("ded", setup_items=needed_config))

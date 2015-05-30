@@ -4,7 +4,6 @@ import cv2
 import numpy as np
 from PIL import Image
 import time
-import re
 import pyimgur
 import os
 import tweepy
@@ -13,14 +12,25 @@ import config
 import dankutil
 import karma
 
+# Force the user to provide values for these on the command line if they're not present
+# in the config file
+required_properties = [
+    'reddit_username', 'reddit_password', 'imgur_client_id', 'twitter_consumer_key',
+    'twitter_consumer_secret', 'twitter_access_token', 'twitter_access_token_secret',
+]
+# Define default values for properties if they're not present in the config file
+default_properties = {
+    'eye_data': 'xml/eyes.xml', 'face_data': 'xml/faces.xml',
+    'glasses_image': 'assets/glasses.png'
+}
+conf = config.get_config("config.txt", required_properties, default_properties)
+
 # Eye Classifier
-eyeData = "xml/eyes.xml"
-faceData = "xml/faces.xml"
-eyeClass = cv2.CascadeClassifier(eyeData)
-faceClass = cv2.CascadeClassifier(faceData)
+eyeClass = cv2.CascadeClassifier(conf['eye_data'])
+faceClass = cv2.CascadeClassifier(conf['face_data'])
 
 # Glasses Asset
-glasses = cv2.imread('assets/glasses.png', cv2.IMREAD_UNCHANGED)
+glasses = cv2.imread(conf['glasses_image'], cv2.IMREAD_UNCHANGED)
 ratio = glasses.shape[1] / glasses.shape[0]
 
 # How much we are going to downscale image while processing it.
@@ -31,56 +41,44 @@ eyesInImage = False
 ONE_HOUR = 60*60
 last_profile_update = 0
 
-# List of posts already processed.
-already_done = set()
-
-required_properties = [
-    'reddit_bot_name', 'reddit_username', 'reddit_password', 'imgur_client_id',
-    'twitter_consumer_key', 'twitter_consumer_secret', 'twitter_access_token',
-    'twitter_access_token_secret',
-]
-conf = config.get_config("config.txt", required_properties)
-
-# Auth api client
+# Auth twitter API client
 auth = tweepy.OAuthHandler(conf['twitter_consumer_key'], conf['twitter_consumer_secret'])
 auth.secure = True
 auth.set_access_token(conf['twitter_access_token'], conf['twitter_access_token_secret'])
 
-# Get all the blacklisted subs, put them into a list
-dankutil.ensure_file_exists("balcklist_subs.txt")
+# Get all the blacklisted subs, put them into a set
+dankutil.ensure_file_exists("blacklist_subs.txt")
 with open("blacklist_subs.txt", "r") as blacklist_subs:
-    blacklisted_subs = blacklist_subs.readlines()
-    blacklisted_subs = [sub.strip('\n') for sub in blacklisted_subs]
+    blacklisted_subs = {sub.strip() for sub in blacklist_subs.readlines()}
 
-# Get all the blacklisted subs, put them into a list
+# Get all the blacklisted subs, put them into a set
 dankutil.ensure_file_exists("blacklist_users.txt")
 with open("blacklist_users.txt", "r") as blacklist_users:
-    blacklisted_users = blacklist_users.readlines()
-    blacklisted_users = [user.strip('\n') for user in blacklisted_users]
+    blacklisted_users = {user.strip() for user in blacklist_users.readlines()}
 
 api = tweepy.API(auth)
 
-# client name
+# Reddit client name
 r = praw.Reddit('/u/powderblock Glasses')
+botAccount = r.get_redditor(conf['reddit_username'])
 
 # Message template for formatting posts
-message_template = """[DEAL WITH IT]({image_link})
+message_template = """[DEAL WITH IT]({{image_link}})
 
 ***
 
 ^[feedback](http://www.reddit.com/message/compose/\
-?to=powderblock&subject=DealWithItbot%20Feedback) \
+?to=powderblock&subject={botname}%20Feedback) \
 ^[source](https://github.com/powderblock/PyDankReddit) \
-^[creator](http://www.reddit.com/user/powderblock/)"""
-
-botAccount = r.get_redditor(conf["botname"])
+^[creator](http://www.reddit.com/user/powderblock/)""".format(
+    botname=conf['reddit_username']
+)
+print(message_template)
 
 # File to load post IDs from
 postsFile = open("posts.txt", "a+")
-
-for post in range(0, len(postItems)):
-    already_done.add(str(postItems[post]))
-
+# A set of posts already processed based on the file
+already_done = {item.strip() for item in postsFile.read().split("\n")}
 
 def collide(eye, face):
     leftA = eye[0]
@@ -127,7 +125,7 @@ def is_image(url):
     return (url[-4:] == ".png" or url[-4:] == ".jpg" or url[-5:] == ".jpeg")
 
 
-def removeNeg():
+def removeNeg(user):
     for i in user.get_comments():
         if i.score <= int(-1):
             i.delete()
@@ -135,7 +133,7 @@ def removeNeg():
 
 
 # function to check for duplicate comments:
-def removeDupes():
+def removeDupes(user):
     comments = set()
     for i in user.get_comments():
         if i.submission.id in comments:
@@ -187,7 +185,7 @@ while True:
     foundImage = False
     # Auth Reddit
     r.login(conf['username'], conf['password'])
-    user = r.get_redditor(conf['reddit_bot_name'])
+    user = r.get_redditor(conf['reddit_username'])
     # Auth Twitter
     auth = tweepy.OAuthHandler(conf['twitter_consumer_key'], conf['twitter_consumer_secret'])
     auth.secure = True
@@ -285,8 +283,8 @@ while True:
         ))
 
     checkMessages()
-    removeDupes()
-    removeNeg()
+    removeDupes(user)
+    removeNeg(user)
 
     time.sleep(30)
 
