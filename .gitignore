@@ -53,15 +53,11 @@ docs/_build/
 # PyBuilder
 target/
 
-# Secret Information
-imgurInfo.txt
-redditInfo.txt
-twitterInfo.txt
-
 # House keeping files:
 posts.txt
 log.txt
 karma.txt
+config.txt
 
 #blacklists:
 blacklist_subs.txt

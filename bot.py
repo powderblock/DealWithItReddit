@@ -73,12 +73,12 @@ message_template = """[DEAL WITH IT]({{image_link}})
 ^[creator](http://www.reddit.com/user/powderblock/)""".format(
     botname=conf['reddit_username']
 )
-print(message_template)
 
 # File to load post IDs from
-postsFile = open("posts.txt", "a+")
-# A set of posts already processed based on the file
-already_done = {item.strip() for item in postsFile.read().split("\n")}
+dankutil.ensure_file_exists("posts.txt")
+with open("posts.txt", "r") as postsFile
+    # A set of posts already processed based on the file
+    already_done = {item.strip() for item in postsFile.read().split("\n")}
 
 def collide(eye, face):
     leftA = eye[0]
@@ -184,7 +184,7 @@ while True:
     eyesInImage = False
     foundImage = False
     # Auth Reddit
-    r.login(conf['username'], conf['password'])
+    r.login(conf['reddit_username'], conf['reddit_password'])
     user = r.get_redditor(conf['reddit_username'])
     # Auth Twitter
     auth = tweepy.OAuthHandler(conf['twitter_consumer_key'], conf['twitter_consumer_secret'])
@@ -200,8 +200,10 @@ while True:
         if not done and not blacklisted:
             count += 1
             already_done.add(post)
-            postsFile.write(post.id + "\n")
-            postsFile.flush()
+            # Warning: This is a potential performance bottleneck, if that is ever a problem
+            with open("posts.txt", "a") as postsFile:
+                postsFile.write(post.id + "\n")
+
             if is_image(post.url):
                 filename = str(post.url).replace(":", "").replace("/", "")
                 foundImage = True
