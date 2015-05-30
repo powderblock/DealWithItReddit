@@ -76,7 +76,7 @@ message_template = """[DEAL WITH IT]({{image_link}})
 
 # File to load post IDs from
 dankutil.ensure_file_exists("posts.txt")
-with open("posts.txt", "r") as postsFile
+with open("posts.txt", "r") as postsFile:
     # A set of posts already processed based on the file
     already_done = {item.strip() for item in postsFile.read().split("\n")}
 
