@@ -4,20 +4,33 @@ import cv2
 import numpy as np
 from PIL import Image
 import time
-import re
 import pyimgur
 import os
 import tweepy
 from datetime import datetime
+import config
+import dankutil
+import karma
+
+# Force the user to provide values for these on the command line if they're not present
+# in the config file
+required_properties = [
+    'reddit_username', 'reddit_password', 'imgur_client_id', 'twitter_consumer_key',
+    'twitter_consumer_secret', 'twitter_access_token', 'twitter_access_token_secret',
+]
+# Define default values for properties if they're not present in the config file
+default_properties = {
+    'eye_data': 'xml/eyes.xml', 'face_data': 'xml/faces.xml',
+    'glasses_image': 'assets/glasses.png'
+}
+conf = config.get_config("config.txt", required_properties, default_properties)
 
 # Eye Classifier
-eyeData = "xml/eyes.xml"
-faceData = "xml/faces.xml"
-eyeClass = cv2.CascadeClassifier(eyeData)
-faceClass = cv2.CascadeClassifier(faceData)
+eyeClass = cv2.CascadeClassifier(conf['eye_data'])
+faceClass = cv2.CascadeClassifier(conf['face_data'])
 
 # Glasses Asset
-glasses = cv2.imread('assets/glasses.png', cv2.IMREAD_UNCHANGED)
+glasses = cv2.imread(conf['glasses_image'], cv2.IMREAD_UNCHANGED)
 ratio = glasses.shape[1] / glasses.shape[0]
 
 # How much we are going to downscale image while processing it.
@@ -28,78 +41,44 @@ eyesInImage = False
 ONE_HOUR = 60*60
 last_profile_update = 0
 
-# List of posts already processed.
-already_done = set()
-
-line_regex = re.compile(r"(?<=:).+")
-post_regex = re.compile(r"().+")
-reddit = line_regex.finditer(open("redditInfo.txt", "a+").read())
-posts = post_regex.finditer(open("posts.txt", "a+").read())
-imgur = line_regex.finditer(open("imgurInfo.txt", "a+").read())
-twitter = line_regex.finditer(open("twitterInfo.txt", "a+").read())
-
-redditItems = [item.group(0).strip() for item in reddit]
-imgurItems = [item.group(0).strip() for item in imgur]
-twitterItems = [item.group(0).strip() for item in twitter]
-postItems = [item.group(0).strip() for item in posts]
-
-# Super secret user information:
-client_id = imgurItems[0]
-username = redditItems[0]
-password = redditItems[1]
-
-# Auth Twitter:
-consumer_key = twitterItems[0]
-consumer_secret = twitterItems[1]
-
-access_token = twitterItems[2]
-access_token_secret = twitterItems[3]
-
-# Auth api client
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+# Auth twitter API client
+auth = tweepy.OAuthHandler(conf['twitter_consumer_key'], conf['twitter_consumer_secret'])
 auth.secure = True
-auth.set_access_token(access_token, access_token_secret)
+auth.set_access_token(conf['twitter_access_token'], conf['twitter_access_token_secret'])
 
-# Create blacklist_subs.txt if it doesn't exist
-if not os.path.isfile("blacklist_subs.txt"):
-    open("blacklist_subs.txt", "a").close()
-
-# Get all the blacklisted subs, put them into a list
+# Get all the blacklisted subs, put them into a set
+dankutil.ensure_file_exists("blacklist_subs.txt")
 with open("blacklist_subs.txt", "r") as blacklist_subs:
-    blacklisted_subs = blacklist_subs.readlines()
-    blacklisted_subs = [sub.strip('\n') for sub in blacklisted_subs]
+    blacklisted_subs = {sub.strip() for sub in blacklist_subs.readlines()}
 
-# Create blacklist_subs.txt if it doesn't exist
-if not os.path.isfile("blacklist_users.txt"):
-    open("blacklist_users.txt", "a").close()
-    
-# Get all the blacklisted subs, put them into a list
+# Get all the blacklisted subs, put them into a set
+dankutil.ensure_file_exists("blacklist_users.txt")
 with open("blacklist_users.txt", "r") as blacklist_users:
-    blacklisted_users = blacklist_users.readlines()
-    blacklisted_users = [user.strip('\n') for user in blacklisted_users]
+    blacklisted_users = {user.strip() for user in blacklist_users.readlines()}
 
 api = tweepy.API(auth)
 
-# client name
+# Reddit client name
 r = praw.Reddit('/u/powderblock Glasses')
+botAccount = r.get_redditor(conf['reddit_username'])
 
 # Message template for formatting posts
-message_template = """[DEAL WITH IT]({image_link})
+message_template = """[DEAL WITH IT]({{image_link}})
 
 ***
 
-^[feedback](http://www.reddit.com/message/compose/?to=powderblock&subject=DealWithItbot%20Feedback) \
+^[feedback](http://www.reddit.com/message/compose/\
+?to=powderblock&subject={botname}%20Feedback) \
 ^[source](https://github.com/powderblock/PyDankReddit) \
-^[creator](http://www.reddit.com/user/powderblock/)"""
-
-botAccount = r.get_redditor('DEAL_WITH_IT_bot')
+^[creator](http://www.reddit.com/user/powderblock/)""".format(
+    botname=conf['reddit_username']
+)
 
 # File to load post IDs from
-postsFile = open("posts.txt", "a+")
-
-for post in range(0, len(postItems)):
-    already_done.add(str(postItems[post]))
-
+dankutil.ensure_file_exists("posts.txt")
+with open("posts.txt", "r") as postsFile:
+    # A set of posts already processed based on the file
+    already_done = {item.strip() for item in postsFile.read().split("\n")}
 
 def collide(eye, face):
     leftA = eye[0]
@@ -134,7 +113,7 @@ def process_image(name, frame, eyes):
         savedImage = name.replace(":", "").replace("/", "")
         cv2.imwrite(str(savedImage), frame)
         print(("Saved: ") + str(savedImage))
-        im = pyimgur.Imgur(client_id)
+        im = pyimgur.Imgur(conf['imgur_client_id'])
         global uploaded_image
         uploaded_image = im.upload_image(savedImage, title=savedImage)
         os.remove(str(savedImage))
@@ -146,7 +125,7 @@ def is_image(url):
     return (url[-4:] == ".png" or url[-4:] == ".jpg" or url[-5:] == ".jpeg")
 
 
-def removeNeg():
+def removeNeg(user):
     for i in user.get_comments():
         if i.score <= int(-1):
             i.delete()
@@ -154,7 +133,7 @@ def removeNeg():
 
 
 # function to check for duplicate comments:
-def removeDupes():
+def removeDupes(user):
     comments = set()
     for i in user.get_comments():
         if i.submission.id in comments:
@@ -163,71 +142,41 @@ def removeDupes():
             if "DEAL WITH IT" in i.body:
                 print("Duplicate post found. Removing post.")
                 i.delete()
-            
+
         comments.add(i.submission.id)
-
-
-def karma_yesterday():
-    # Create karma.txt if it doesn't exist
-    if not os.path.isfile("karma.txt"):
-        open("karma.txt", "a").close()
-
-    # Get all the karma data from the file into a list
-    with open("karma.txt", "r") as karmafile:
-        karma = karmafile.readlines()
-
-    # Remove all the surrounding whitespace
-    karma = [line.strip() for line in karma]
-    # Split all of the strings into tuples on the comma, and remove invalid entries
-    karma = [tuple(line.split(",")) for line in karma if len(line.split(",")) == 2]
-    # Convert the karma string to an int and the timestamp to a date
-    try:
-        datefmt = "%Y-%m-%d %H:%M:%S.%f"
-
-    except:
-        datefmt = "%Y-%m-%d %H:%M:%S.000000"
-    karma = [(datetime.strptime(d.strip(), datefmt), int(k)) for k, d in karma]
-    # Sort the karma based on datetime
-    karma.sort()
-    # Remove the time information from the datetime, we don't care about it anymore
-    karma = [(dt.date(), k) for dt, k in karma]
-
-    # The `days` will contain the first entry from each day
-    # We insert the first entry as the base case, since it will always be
-    # the first we have from that day (we sorted it)
-    days = [karma[0]]
-    for day in karma:
-        # If this entry is from a new day add it to `days`
-        if day[0] != days[-1][0]:
-            days.append(day)
-
-    # Get rid of the information about what day it is,
-    # we only care about start-of-day karma
-    days = [day[1] for day in days]
-    # Return the amount of karma gained during the previous day
-    return days[-1] - days[-2]
 
 
 def checkMessages():
     for msg in r.get_unread(limit=None):
         msg.mark_as_read()
-        try: r.send_message('powderblock', 'New message!', '{body} -/u/{author} {link}{context}'.format( body=body, author=msg.author, link=msg.permalink, context="?context=3"))
-
-        except: print("Message was not sent.")
-        available = 109 - len(unicode(msg.author))
-        body = msg.body if len(unicode(msg.body)) <= available else unicode((msg.body)[:available]+ "\u2026")
-        # Mark as read goes before updating so if the message breaks, don't get stuck in a loop:
-        #Tweet about the new message
-
         try:
-            api.update_status(status = "'{body}' -/u/{author} {link}{context}".format(
-            body=body,
-            author=msg.author,
-            link=msg.permalink,
-            context="?context=3"
-            ))
+            message_text = '{body} -/u/{author} {link}{context}'.format(
+                body=body,
+                author=msg.author,
+                link=msg.permalink,
+                context="?context=3"
+            )
+            r.send_message('powderblock', 'New message!', message_text)
+        except:
+            print("Message was not sent.")
 
-        except: print("Tweet was not made. Skipping.")
+        available = 109 - len(unicode(msg.author))
+        if len(unicode(msg.body)) <= available:
+            body = msg.body
+        else:
+            body = unicode((msg.body)[:available] + "\u2026")
+
+        # Mark as read goes before updating so if the message breaks, don't get stuck in a loop:
+        # Tweet about the new message
+        try:
+            api.update_status(status="'{body}' -/u/{author} {link}{context}".format(
+                body=body,
+                author=msg.author,
+                link=msg.permalink,
+                context="?context=3"
+            ))
+        except:
+            print("Tweet was not made. Skipping.")
 
 
 # main loop
@@ -235,24 +184,26 @@ while True:
     eyesInImage = False
     foundImage = False
     # Auth Reddit
-    r.login(username, password)
-    user = r.get_redditor('DEAL_WITH_IT_bot')
+    r.login(conf['reddit_username'], conf['reddit_password'])
+    user = r.get_redditor(conf['reddit_username'])
     # Auth Twitter
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth = tweepy.OAuthHandler(conf['twitter_consumer_key'], conf['twitter_consumer_secret'])
     auth.secure = True
-    auth.set_access_token(access_token, access_token_secret)
+    auth.set_access_token(conf['twitter_access_token'], conf['twitter_access_token_secret'])
 
     api = tweepy.API(auth)
     count = 0
     for post in r.get_subreddit('all').get_new(limit=20):
         done = post in already_done
-        subreddit = post.subreddit
-        author = post.author
-        if not done and subreddit not in blacklisted_subs and author not in blacklisted_users:
+        blacklisted = (post.subreddit in blacklisted_subs
+                       or post.author in blacklisted_users)
+        if not done and not blacklisted:
             count += 1
             already_done.add(post)
-            postsFile.write(post.id + "\n")
-            postsFile.flush()
+            # Warning: This is a potential performance bottleneck, if that is ever a problem
+            with open("posts.txt", "a") as postsFile:
+                postsFile.write(post.id + "\n")
+
             if is_image(post.url):
                 filename = str(post.url).replace(":", "").replace("/", "")
                 foundImage = True
@@ -298,7 +249,7 @@ while True:
                     process_image(str(post.url), frame, eyes_to_use)
                     submission = r.get_submission(submission_id=post.id)
                     # Make a link with text deal with it, link points to the uploaded image.
-                    message = message_template.format(image_link = uploaded_image.link)
+                    message = message_template.format(image_link=uploaded_image.link)
                     try:
                         # Leave the comment
                         comment = submission.add_comment(message)
@@ -307,13 +258,13 @@ while True:
                         try:
                             if submission.over_18:
                                 NSFW = "[Not Safe For Work!]"
-                            if not submission.over_18:
+                            else:
                                 NSFW = "[Safe For Work!]"
                             # Post to twitter
-                            api.update_status(status = "New Post! {link} {hashtag} {nsfw_tag}".format(
+                            api.update_status(status="New Post! {link} {hashtag} {nsfwtag}".format(
                                 link=str(comment.permalink),
-                                hashtag = "#reddit",
-								nsfw_tag = NSFW
+                                hashtag="#reddit",
+                                nsfwtag=NSFW
                             ))
                             print("Tweet made!")
                         except:
@@ -334,8 +285,8 @@ while True:
         ))
 
     checkMessages()
-    removeDupes()
-    removeNeg()
+    removeDupes(user)
+    removeNeg(user)
 
     time.sleep(30)
 
@@ -348,15 +299,15 @@ while True:
             lines = [line.split(',')[0] for line in karmafile]
 
         lastKarma = lines[-1]
-        karma_status = "Currently I have {karma} karma, yesterday I gained {yesterday} karma.".format(
+        karma_status = "Currently I have {karma} karma, yesterday I gained {gain} karma.".format(
             karma=botAccount.comment_karma,
-            yesterday=karma_yesterday()
+            gain=karma.karma_yesterday()
         )
         api.update_profile(description=karma_status)
         print(karma_status)
         # Open karma.txt for karma saving:
         with open("karma.txt", "a+") as karmaFile:
             karmaFile.write("{karma}, {timeAndDate}\n".format(
-                karma = botAccount.comment_karma,
-                timeAndDate = str(datetime.now())
+                karma=botAccount.comment_karma,
+                timeAndDate=str(datetime.now())
             ))
