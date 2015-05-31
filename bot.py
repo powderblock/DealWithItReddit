@@ -113,7 +113,7 @@ def process_image(name, frame, eyes):
         savedImage = name.replace(":", "").replace("/", "")
         cv2.imwrite(str(savedImage), frame)
         print(("Saved: ") + str(savedImage))
-        im = pyimgur.Imgur(client_id)
+        im = pyimgur.Imgur(conf['imgur_client_id'])
         global uploaded_image
         uploaded_image = im.upload_image(savedImage, title=savedImage)
         os.remove(str(savedImage))
