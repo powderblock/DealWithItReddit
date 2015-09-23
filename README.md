@@ -1,12 +1,10 @@
-PyDankReddit
+DealWithItReddit
 ============
 Code for [/u/DEAL_WITH_IT_bot](http://www.reddit.com/user/DEAL_WITH_IT_bot).  
 
-Processin' those dank reddits into may mays using Python with PRAW and OpenCV.
+Processing reddit images using Python with PRAW and OpenCV.
 
-PyDankReddit is the backbone to a reddit bot that finds faces and eyes in images. When a pair of eyes are found within a face, a pair of "[Deal With it](https://raw.githubusercontent.com/powderblock/PyDankReddit/master/assets/glasses.png)" glasses are added.
-
-Should add some sw33t sunglasses onto your reddits rite now m8.
+DealWithItReddit is the backbone to a reddit bot that finds faces and eyes in images. When a pair of eyes are found within a face, a pair of "[Deal With it](https://raw.githubusercontent.com/powderblock/PyDankReddit/master/assets/glasses.png)" glasses are added.
 
 Credits
 -------
@@ -48,7 +46,7 @@ Testimonials
 "you have been banned from posting to /r/MakeupAddiction: Makeup Addiction." - ~~Bill Gates~~ [http://www.reddit.com/r/makeupaddiction](/r/MakeupAddiction/)
 
 ~Reddit Admins Love us!~
-"i am banning this shit wherever I see it" - [Pallas-Athena](http://www.reddit.com/user/Pallas-Athena) (mod of 38.43 trillion reddits)
+"i am banning this shit wherever I see it" - [Pallas-Athena](http://www.reddit.com/user/Pallas-Athena)
 
 License
 -------
